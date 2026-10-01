@@ -3,27 +3,60 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080a09" />
     <title>TV simulada · Pantallas</title>
     <link rel="stylesheet" href="estilos.css" />
-    <style>
-        #video { width: 100%; max-height: 60vh; background: #000; }
-        #estado { font-weight: bold; }
-    </style>
 </head>
-<body>
-    <header class="cabecera"><h1>TV simulada (para probar sin el Hisense)</h1></header>
+<body data-tv="off">
+    <header class="cabecera">
+        <a class="marca" href="pantallas.html" aria-label="Pantallas, inicio">
+            <svg viewBox="0 0 34 34" aria-hidden="true">
+                <path class="arco" d="M11 23a8 8 0 0 1 0-12" /><path class="arco" d="M7 27a14 14 0 0 1 0-20" /><path class="arco" d="M3 31a20 20 0 0 1 0-28" />
+                <rect class="nucleo" x="15" y="12" width="17" height="11" rx="2.5" />
+            </svg>
+            <span class="marca-texto"><strong>pantallas</strong><span>tv simulada</span></span>
+        </a>
+        <nav class="nav" aria-label="Secciones">
+            <a href="pantallas.html">Panel</a>
+            <a href="emisora.html">Emisora</a>
+            <a href="tv-sim.html" aria-current="page">TV simulada</a>
+        </nav>
+        <div class="cabecera-der"></div>
+    </header>
     <main>
         <section class="panel">
-            <div class="fila">
-                <label>Código: <input id="deviceId" value="TV-SIM-01" size="14" /></label>
-                <label>Nombre: <input id="nombre" value="Simulada 1" size="14" /></label>
-                <button type="button" id="btnConectar">Conectar</button>
+            <div class="seccion-cab" style="margin-bottom:32px">
+                <div>
+                    <span class="etiqueta"><b>●</b> Banco de pruebas</span>
+                    <h1 class="titular" id="titular" style="font-size:clamp(2.2rem,5.4vw,4.4rem)">Una TV, sin la TV.</h1>
+                </div>
+                <p>Hace lo mismo que la APK del Hisense: se registra, mantiene el ping y muestra el vídeo que le llega por WebRTC.</p>
             </div>
-            <p id="estado">Desconectada</p>
-            <video id="video" autoplay playsinline></video>
-            <p id="info"></p>
+            <div class="sim">
+                <div class="tv-fisica">
+                    <div class="marco">
+                        <div class="vidrio">
+                            <video id="video" autoplay playsinline></video>
+                            <div class="espera-tv"><div class="barras"></div><p id="estado">Desconectada</p></div>
+                        </div>
+                        <span class="led"></span>
+                    </div>
+                    <div class="pata"></div>
+                </div>
+                <div class="tarjeta sim-form">
+                    <div class="fila">
+                        <label><span class="etiqueta">Código</span><input id="deviceId" value="TV-SIM-01" spellcheck="false" /></label>
+                        <label><span class="etiqueta">Nombre</span><input id="nombre" value="Simulada 1" /></label>
+                    </div>
+                    <button type="button" id="btnConectar">Encender y conectar <span class="flecha">→</span></button>
+                    <p id="info" class="consola" data-vacio="Apagada. Pulsa Encender y quedará esperando una sesión."></p>
+                </div>
+            </div>
         </section>
     </main>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/SplitText.min.js"></script>
+    <script src="ui.js"></script>
     <script>
         // Hace lo mismo que la APK: register por WS, ping 5 s, responde offer con
         // answer y muestra el vídeo WebRTC entrante.
@@ -86,6 +119,23 @@
                 if (pc) { try { pc.close(); } catch (e) {} pc = null; }
                 $("video").srcObject = null;
             }
+        })();
+    </script>
+    <script>
+        // Solo presentación: refleja el texto de estado en el LED y la pantalla.
+        (function () {
+            var est = document.getElementById("estado");
+            function reflejar() {
+                var t = est.textContent;
+                var modo = /RECIBIENDO/.test(t) ? "video" : /CONECTADO|Registrando/.test(t) ? "on" : "off";
+                if (document.body.dataset.tv !== modo && window.UI && UI.anima()) {
+                    UI.gsap.fromTo(".vidrio", { filter: "brightness(2.2)" }, { filter: "brightness(1)", duration: .7, ease: "expo.out", clearProps: "filter" });
+                }
+                document.body.dataset.tv = modo;
+            }
+            new MutationObserver(reflejar).observe(est, { childList: true, characterData: true, subtree: true });
+            UI.titular(document.getElementById("titular"), .2);
+            UI.entrada(".tv-fisica, .sim-form", { delay: .4, y: 50, paso: .12 });
         })();
     </script>
 </body>

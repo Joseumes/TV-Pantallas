@@ -23,14 +23,39 @@
         return (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/senalizacion";
     }
 
+    //--- Solo presentación: chip de señalización, luz de aire y reloj -----------
+    function estadoWs(texto, ok) {
+        $("estadoWs").textContent = texto;
+        $("wsChip").classList.toggle("ok", ok === true);
+        $("wsChip").classList.toggle("mal", ok === false);
+    }
+    var relojTimer = null, relojInicio = 0;
+    function emision(modo) {
+        document.body.dataset.emision = modo;
+        $("tallyTxt").textContent = { idle: "Sin captura", capturada: "Previa lista", aire: "Al aire" }[modo];
+        clearInterval(relojTimer);
+        if (modo === "aire") {
+            relojInicio = Date.now();
+            relojTimer = setInterval(function () {
+                var s = Math.floor((Date.now() - relojInicio) / 1000);
+                $("reloj").textContent = [s / 3600, (s % 3600) / 60, s % 60].map(function (n) {
+                    return String(Math.floor(n)).padStart(2, "0");
+                }).join(":");
+            }, 1000);
+        } else $("reloj").textContent = "00:00:00";
+        if (window.UI && UI.anima()) {
+            UI.gsap.fromTo(".monitor", { scale: .985 }, { scale: 1, duration: .9, ease: "elastic.out(1, .5)" });
+        }
+    }
+
     function conectar() {
         ws = new WebSocket(wsUrl());
         ws.onopen = function () {
-            $("estadoWs").textContent = "Señalización: conectada";
+            estadoWs("Señalización: conectada", true);
             ws.send(JSON.stringify({ type: "hello_emisora" }));
         };
         ws.onclose = function () {
-            $("estadoWs").textContent = "Señalización: caída, reintentando…";
+            estadoWs("Señalización: caída, reintentando…", false);
             setTimeout(conectar, 3000);
         };
         ws.onmessage = async function (ev) {
@@ -93,15 +118,29 @@
         });
         var ul = $("tvs"); ul.innerHTML = "";
         var lista = visibles();
+        var previas = pintar.vistas || {};
+        var nuevas = [];
         lista.forEach(function (id) {
             var t = tvsOnline[id];
             var li = document.createElement("li");
-            var extra = pcs[id] ? " · transmitiendo" : (t.estado === "streaming" ? " · OCUPADA (en sesión)" : "");
-            li.textContent = id + " — " + t.nombre + " [" + t.grupo + "]" + extra;
-            if (t.estado === "streaming" && !pcs[id]) li.className = "ocupada";
+            var ocupada = t.estado === "streaming" && !pcs[id];
+            var tag = pcs[id] ? "Transmitiendo" : (ocupada ? "Ocupada" : "Lista");
+            li.innerHTML = "<span class='dot " + (pcs[id] ? "streaming" : ocupada ? "offline" : "online") + "'></span>" +
+                "<span><span class='n'></span><span class='c'></span></span><span class='tag'></span>";
+            li.querySelector(".n").textContent = t.nombre;
+            li.querySelector(".c").textContent = id + " · " + t.grupo + (ocupada ? " · en otra sesión" : "");
+            li.querySelector(".tag").textContent = tag;
+            li.title = id + " — " + t.nombre + " [" + t.grupo + "]";
+            if (ocupada) li.className = "ocupada";
+            else if (pcs[id]) li.className = "tx";
+            if (!previas[id]) nuevas.push(li);
             ul.appendChild(li);
         });
-        if (!lista.length) ul.innerHTML = "<li>Sin TVs en este lab con WS abierto.</li>";
+        pintar.vistas = {};
+        lista.forEach(function (id) { pintar.vistas[id] = true; });
+        if (!lista.length) ul.innerHTML = "<li class='vacia'>Sin TVs en este lab con WS abierto.</li>";
+        $("cuentaTvs").textContent = lista.length + (lista.length === 1 ? " conectada" : " conectadas");
+        if (window.UI) UI.entrada(nuevas, { y: 0, scale: .94, paso: .05, duracion: .8 });
     }
 
     $("btnCapturar").onclick = async function () {
@@ -114,6 +153,7 @@
             $("previa").srcObject = stream;
             $("btnTransmitir").disabled = false;
             $("info").textContent = "Pantalla capturada. Ahora Transmitir.";
+            emision(sessionId ? "aire" : "capturada");
         } catch (e) { $("info").textContent = "Captura cancelada."; }
     };
 
@@ -125,7 +165,7 @@
         try {
             var rr = await fetch("api/pantallas", { headers: { "X-Api-Key": localStorage.getItem(CLAVE) || "" } });
             d = await rr.json();
-        } catch (e) { alert("No se alcanzó al servidor."); return; }
+        } catch (e) { UI.toast("No se alcanzó al servidor.", "error"); return; }
         var lista = visibles();
         var existente = (d.sesiones || []).find(function (s) {
             return lista.length && lista.every(function (id) { return (s.participantes || []).indexOf(id) >= 0; });
@@ -136,7 +176,7 @@
         } else {
             var libres = lista.filter(function (id) { return tvsOnline[id].estado !== "streaming"; });
             var ocupadas = lista.filter(function (id) { return tvsOnline[id].estado === "streaming"; });
-            if (!libres.length) { alert("No hay TVs libres en este lab (todas en sesión). Usa Liberar si es una sesión zombi."); return; }
+            if (!libres.length) { UI.toast("No hay TVs libres en este lab (todas en sesión). Usa Liberar si es una sesión zombi.", "aviso"); return; }
             var r = await fetch("api/sesiones", {
                 method: "POST",
                 headers: { "X-Api-Key": localStorage.getItem(CLAVE) || "", "Content-Type": "application/json" },
@@ -145,7 +185,7 @@
             if (!r.ok) {
                 var err;
                 try { err = await r.json(); } catch (x) { err = {}; }
-                alert("No se pudo crear sesión: " + (err.detail || r.status));
+                UI.toast("No se pudo crear sesión: " + (err.detail || r.status), "error");
                 return;
             }
             var s = await r.json();
@@ -159,6 +199,7 @@
         iniciarPingSesion();
         $("btnCortar").disabled = false;
         $("btnTransmitir").disabled = true;
+        emision("aire");
     };
 
     function iniciarPingSesion() {
@@ -215,6 +256,7 @@
         $("btnCortar").disabled = true;
         $("btnTransmitir").disabled = false;
         $("info").textContent = "Transmisión cortada.";
+        emision(stream ? "capturada" : "idle");
         pintar();
     };
 
@@ -225,8 +267,12 @@
         var mias = (d.sesiones || []).filter(function (s) {
             return (s.participantes || []).some(function (id) { return visibles().indexOf(id) >= 0; });
         });
-        if (!mias.length) { alert("Este lab no tiene sesiones activas."); return; }
-        if (!confirm("Detener " + mias.length + " sesión(es) de este lab?")) return;
+        if (!mias.length) { UI.toast("Este lab no tiene sesiones activas.", "aviso"); return; }
+        if (!(await UI.confirmar({
+            titulo: "¿Detener " + mias.length + " sesión(es) de este lab?",
+            texto: "Las TVs de este laboratorio vuelven a quedar libres (incluye sesiones zombi).",
+            ok: "Liberar", peligro: true
+        }))) return;
         for (var i = 0; i < mias.length; i++) {
             await fetch("api/sesiones/" + encodeURIComponent(mias[i].sessionId), {
                 method: "DELETE", headers: { "X-Api-Key": localStorage.getItem(CLAVE) || "" }
@@ -237,4 +283,11 @@
     };
 
     conectar(); pintar();
+
+    // Entrada de la página (solo presentación)
+    UI.titular($("titular"), .2);
+    UI.entrada(".escenario, .lateral > .tarjeta", { delay: .35, y: 50, paso: .1 });
+    UI.entrada(".pasos > button", { delay: .8, y: 18, paso: .06 });
+    UI.magnetico($("btnTransmitir"), .22);
+    UI.magnetico($("btnCapturar"), .22);
 })();

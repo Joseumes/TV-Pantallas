@@ -3,71 +3,146 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pantallas institucionales</title>
+    <meta name="theme-color" content="#080a09" />
+    <title>Sala de control · Pantallas</title>
+    <link rel="preload" href="vendor/bricolage.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="estilos.css" />
-    <style>
-        .tv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin: 12px 0; }
-        .tv { border: 2px solid #e5e7eb; border-radius: 12px; padding: 12px; cursor: pointer; background: #fff; transition: box-shadow .15s, border-color .15s; }
-        .tv:hover { box-shadow: 0 2px 10px rgba(0,0,0,.12); }
-        .tv.sel { border-color: #2563eb; box-shadow: 0 0 0 3px #bfdbfe; }
-        .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; }
-        .online { background: #16a34a; } .offline { background: #dc2626; } .streaming { background: #2563eb; }
-        .ficha { background: #111827; color: #d1fae5; font-size: 12px; padding: 8px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
-        .chico { font-size: 12px; padding: 5px 10px; margin-top: 6px; }
-        .grupo { display: inline-block; background: #dbeafe; color: #1e40af; font-size: 12px; border-radius: 10px; padding: 1px 8px; margin-left: 6px; }
-        .lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 12px 0; }
-        .lab-card { border: 2px solid #e5e7eb; border-radius: 14px; padding: 18px; cursor: pointer; background: #fff; transition: box-shadow .15s, border-color .15s; }
-        .lab-card:hover { border-color: #2563eb; box-shadow: 0 2px 12px rgba(37,99,235,.25); }
-        .lab-card h3 { margin: 0 0 6px; text-transform: capitalize; font-size: 22px; }
-        .lab-stats { color: #4b5563; font-size: 14px; }
-        .lab-stats b.on { color: #16a34a; } .lab-stats b.st { color: #2563eb; } .lab-stats b.off { color: #dc2626; }
-        .volver { color: #2563eb; cursor: pointer; font-size: 15px; }
-        .sesion-activa { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
-        .oculto { display: none; }
-    </style>
 </head>
 <body>
     <header class="cabecera">
-        <h1>Pantallas</h1>
+        <a class="marca" href="pantallas.html" aria-label="Pantallas, inicio">
+            <svg viewBox="0 0 34 34" aria-hidden="true">
+                <path class="arco" d="M11 23a8 8 0 0 1 0-12" /><path class="arco" d="M7 27a14 14 0 0 1 0-20" /><path class="arco" d="M3 31a20 20 0 0 1 0-28" />
+                <rect class="nucleo" x="15" y="12" width="17" height="11" rx="2.5" />
+            </svg>
+            <span class="marca-texto"><strong>pantallas</strong><span>sala de control</span></span>
+        </a>
+        <nav class="nav" aria-label="Secciones">
+            <a href="pantallas.html" aria-current="page">Panel</a>
+            <a href="emisora.html">Emisora</a>
+            <a href="tv-sim.html">TV simulada</a>
+        </nav>
         <div class="cabecera-der">
-            <label class="clave">API Key: <input type="password" id="apiKey" size="20" /></label>
-            <button type="button" class="secundario chico" id="btnGuardarClave">Guardar</button>
-            <a href="emisora.html">Abrir emisora</a>
+            <span class="estado-ws" id="servidorInfo"><span class="punto"></span><span>servidor <span class="txt-largo" id="servidorTxt">—</span></span></span>
+            <div class="llave">
+                <button type="button" class="secundario llave-boton" aria-expanded="false" aria-controls="panelLlave">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2"/></svg>
+                    <span class="solo-lectores">API Key</span>
+                </button>
+                <div class="llave-panel" id="panelLlave">
+                    <label for="apiKey"><span class="etiqueta">API Key del servidor</span></label>
+                    <div class="fila">
+                        <input type="password" id="apiKey" autocomplete="off" spellcheck="false" />
+                        <button type="button" class="chico" id="btnGuardarClave">Guardar</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
+
     <main>
         <!-- VISTA HOME: laboratorios -->
         <section id="vistaHome" class="panel">
-            <h2>Laboratorios</h2>
-            <p>Toca un laboratorio para ver sus TVs y transmitir solo ahí. Varios laboratorios pueden transmitir a la vez, cada uno desde su PC.</p>
-            <div id="labCards" class="lab-grid"></div>
-            <h2>Agregar TV Hisense</h2>
-            <div class="fila">
-                <label>Código: <input id="nuevoId" size="12" placeholder="LAB1-01" /></label>
-                <label>Nombre: <input id="nuevoNombre" size="14" placeholder="Lab 1 TV 1" /></label>
-                <label>Lab: <input id="nuevoGrupo" size="8" placeholder="lab1" list="gruposExistentes" /></label>
-                <datalist id="gruposExistentes"></datalist>
-                <button type="button" id="btnAgregar">Agregar TV</button>
+            <div class="hero">
+                <div class="hero-texto">
+                    <p class="etiqueta">Transmisión en red local · <b id="fechaHoy">hoy</b></p>
+                    <h1 class="titular" id="titular">Una señal,<br />todas las <em>pantallas.</em></h1>
+                    <p class="hero-sub">Elige un laboratorio, marca sus TVs y emite desde su PC. Cada laboratorio es un <strong>canal independiente</strong>: pueden salir al aire varios a la vez sin quitarse pantallas.</p>
+                </div>
+                <div class="onda" id="onda"></div>
             </div>
-            <p>Cada TV se configura <strong>una sola vez</strong> en su pantalla Configurar con los datos de su tarjeta.</p>
+
+            <div class="kpis" id="kpis">
+                <div class="kpi spot"><span class="etiqueta">Pantallas</span><span class="num" id="kTotal">0</span></div>
+                <div class="kpi spot"><span class="etiqueta"><i class="dot online"></i>En línea</span><span class="num" id="kOn">0</span></div>
+                <div class="kpi k-vivo spot"><span class="etiqueta"><i class="dot streaming"></i>Al aire</span><span class="num" id="kSt">0</span></div>
+                <div class="kpi k-fuera spot"><span class="etiqueta"><i class="dot offline"></i>Fuera</span><span class="num" id="kOff">0</span></div>
+            </div>
+
+            <div class="seccion">
+                <div class="seccion-cab">
+                    <div>
+                        <span class="etiqueta"><b>01</b> / Canales</span>
+                        <h2>Laboratorios</h2>
+                    </div>
+                    <p>Entra a uno para ver sus TVs y transmitir solo ahí. Cada cuadro es una pantalla, con su color de estado.</p>
+                </div>
+                <div id="labCards" class="lab-grid"></div>
+            </div>
+
+            <div class="seccion">
+                <div class="seccion-cab">
+                    <div>
+                        <span class="etiqueta"><b>02</b> / Alta</span>
+                        <h2>Agregar TV Hisense</h2>
+                    </div>
+                    <p>La TV se configura <strong>una sola vez</strong> con los datos de su ficha. Aquí ves la ficha mientras escribes.</p>
+                </div>
+                <div class="tarjeta alta">
+                    <div class="alta-form">
+                        <div class="fila">
+                            <label><span class="etiqueta">Código</span><input id="nuevoId" placeholder="LAB1-01" autocomplete="off" spellcheck="false" /></label>
+                            <label><span class="etiqueta">Nombre</span><input id="nuevoNombre" placeholder="Lab 1 TV 1" autocomplete="off" /></label>
+                        </div>
+                        <div class="fila">
+                            <label><span class="etiqueta">Laboratorio</span><input id="nuevoGrupo" placeholder="lab1" list="gruposExistentes" autocomplete="off" /></label>
+                            <datalist id="gruposExistentes"></datalist>
+                        </div>
+                        <button type="button" id="btnAgregar">Agregar TV <span class="flecha">→</span></button>
+                        <p class="nota">Después, en la TV abre la app → <strong>Configurar</strong> y escribe servidor, puerto, código y token. La tarjeta pasará a <strong>en línea</strong> sola.</p>
+                    </div>
+                    <div class="ticket" aria-hidden="true">
+                        <div class="t-cab"><span>Ficha de TV</span><span id="tkLab">lab1</span></div>
+                        <div class="t-id" id="tkId">LAB1-01</div>
+                        <div class="t-nom" id="tkNom">Lab 1 TV 1</div>
+                        <div class="t-linea"></div>
+                        <dl>
+                            <dt>Servidor</dt><dd id="tkSrv">—</dd>
+                            <dt>Puerto</dt><dd id="tkPto">—</dd>
+                            <dt>Token</dt><dd>se genera al agregar</dd>
+                        </dl>
+                        <div class="barras" id="tkBarras"></div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- VISTA LAB -->
         <section id="vistaLab" class="panel oculto">
-            <span class="volver" id="btnVolver">« Laboratorios</span>
-            <h2 id="labTitulo">Lab</h2>
+            <button type="button" class="volver" id="btnVolver"><span class="flecha">←</span> Laboratorios</button>
+            <div class="lab-titulo">
+                <h2 id="labTitulo">Lab</h2>
+                <div class="resumen" id="labResumen"></div>
+            </div>
             <div id="sesionLab"></div>
-            <div class="fila">
-                <button type="button" id="btnTodas">Seleccionar todas</button>
-                <button type="button" id="btnSesion">Transmitir a seleccionadas</button>
-                <button type="button" class="secundario" id="btnDetener">Detener sesión</button>
-                <button type="button" class="secundario" id="btnActualizar">Actualizar</button>
+            <div class="barra">
+                <div class="grupo">
+                    <button type="button" class="secundario" id="btnTodas">Seleccionar todas</button>
+                    <span class="contador-sel" id="contadorSel"><b>0</b> marcadas</span>
+                </div>
+                <div class="grupo">
+                    <button type="button" class="fantasma" id="btnActualizar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Actualizar
+                    </button>
+                    <button type="button" class="secundario" id="btnDetener">Detener sesión</button>
+                    <button type="button" id="btnSesion">Transmitir a seleccionadas <span class="flecha">→</span></button>
+                </div>
             </div>
             <div id="lista" class="tv-grid"></div>
-            <h2>Sesiones activas</h2>
-            <ul id="sesiones"></ul>
+            <div class="seccion">
+                <div class="seccion-cab">
+                    <div>
+                        <span class="etiqueta"><b>●</b> En todo el edificio</span>
+                        <h2>Sesiones activas</h2>
+                    </div>
+                </div>
+                <ul id="sesiones" class="sesiones"></ul>
+            </div>
         </section>
     </main>
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/SplitText.min.js"></script>
+    <script src="ui.js"></script>
     <script src="config-web.js"></script>
     <script src="pantallas.js"></script>
 </body>
