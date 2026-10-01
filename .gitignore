@@ -1,0 +1,10 @@
+node_modules/
+servidor/pantallas.json
+servidor/config.json
+*.pem
+tv-client/build/
+tv-client/app/build/
+tv-client/.gradle/
+tv-client/local.properties
+*.iml
+.idea/

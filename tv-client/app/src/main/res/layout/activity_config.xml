@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0B0B0B"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="CONFIGURACIÓN" android:textColor="#FFFFFF" android:textSize="22sp" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:text="Servidor (IP del PC)"
+            android:textColor="#BBBBBB" android:textSize="14sp" />
+        <EditText android:id="@+id/eServer" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="172.17.203.186"
+            android:textColor="#FFFFFF" android:textColorHint="#888888"
+            android:inputType="text" android:imeOptions="actionNext" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Puerto"
+            android:textColor="#BBBBBB" android:textSize="14sp" />
+        <EditText android:id="@+id/ePort" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="8080"
+            android:textColor="#FFFFFF" android:textColorHint="#888888"
+            android:inputType="number" android:imeOptions="actionNext" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Código (igual que en la web)"
+            android:textColor="#BBBBBB" android:textSize="14sp" />
+        <EditText android:id="@+id/eDevice" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="TV-SALON-01"
+            android:textColor="#FFFFFF" android:textColorHint="#888888"
+            android:inputType="textCapCharacters" android:imeOptions="actionNext" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Nombre"
+            android:textColor="#BBBBBB" android:textSize="14sp" />
+        <EditText android:id="@+id/eNombre" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="Salón 1"
+            android:textColor="#FFFFFF" android:textColorHint="#888888"
+            android:inputType="text" android:imeOptions="actionNext" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Token (lo muestra la tarjeta en la web)"
+            android:textColor="#BBBBBB" android:textSize="14sp" />
+        <EditText android:id="@+id/eToken" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="pega el token aquí"
+            android:textColor="#FFFFFF" android:textColorHint="#888888"
+            android:inputType="text" android:imeOptions="actionDone" />
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" android:orientation="horizontal">
+
+            <Switch android:id="@+id/eLlenar" android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Llenar pantalla (recorta bordes)"
+                android:textColor="#FFFFFF" />
+
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" android:orientation="horizontal">
+
+            <Button android:id="@+id/btnGuardar" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Guardar"
+                android:nextFocusUp="@+id/eToken" />
+
+            <Button android:id="@+id/btnCancelar" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_marginStart="16dp"
+                android:text="Cancelar" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,10 @@
+{
+  "puerto": 8080,
+  "apiKey": "PON-AQUI-UNA-CLAVE-LARGA-Y-ALEATORIA-DE-64-CARACTERES",
+  "pingTimeoutSeg": 20,
+  "https": {
+    "puerto": 8443,
+    "keyFile": "cert-key.pem",
+    "certFile": "cert-cert.pem"
+  }
+}

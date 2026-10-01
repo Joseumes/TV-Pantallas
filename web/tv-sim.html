@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TV simulada · Pantallas</title>
+    <link rel="stylesheet" href="estilos.css" />
+    <style>
+        #video { width: 100%; max-height: 60vh; background: #000; }
+        #estado { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header class="cabecera"><h1>TV simulada (para probar sin el Hisense)</h1></header>
+    <main>
+        <section class="panel">
+            <div class="fila">
+                <label>Código: <input id="deviceId" value="TV-SIM-01" size="14" /></label>
+                <label>Nombre: <input id="nombre" value="Simulada 1" size="14" /></label>
+                <button type="button" id="btnConectar">Conectar</button>
+            </div>
+            <p id="estado">Desconectada</p>
+            <video id="video" autoplay playsinline></video>
+            <p id="info"></p>
+        </section>
+    </main>
+    <script>
+        // Hace lo mismo que la APK: register por WS, ping 5 s, responde offer con
+        // answer y muestra el vídeo WebRTC entrante.
+        (function () {
+            "use strict";
+            var ws = null, pc = null, sessionId = null, pingTimer = null;
+            var $ = function (id) { return document.getElementById(id); };
+
+            function tokenKey() { return "pantallas.token." + $("deviceId").value.trim(); }
+
+            $("btnConectar").onclick = function () {
+                if (ws) { ws.close(); ws = null; }
+                var url = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/senalizacion";
+                ws = new WebSocket(url);
+                ws.onopen = function () {
+                    $("estado").textContent = "Registrando…";
+                    ws.send(JSON.stringify({
+                        type: "register",
+                        deviceId: $("deviceId").value.trim(),
+                        name: $("nombre").value.trim(),
+                        version: "sim-1.0",
+                        token: localStorage.getItem(tokenKey()) || ""
+                    }));
+                };
+                ws.onclose = function () { $("estado").textContent = "Desconectada"; clearInterval(pingTimer); };
+                ws.onmessage = async function (ev) {
+                    var m = JSON.parse(ev.data);
+                    if (m.type === "registered") {
+                        localStorage.setItem(tokenKey(), m.token || "");
+                        $("estado").textContent = "✓ SERVIDOR CONECTADO — esperando transmisión…";
+                        clearInterval(pingTimer);
+                        pingTimer = setInterval(function () {
+                            ws.send(JSON.stringify({ type: "ping", deviceId: $("deviceId").value.trim() }));
+                        }, 5000);
+                    }
+                    else if (m.type === "stream_start") { $("info").textContent = "Sesión " + m.sessionId + "…"; }
+                    else if (m.type === "offer") { await alOffer(m); }
+                    else if (m.type === "ice") {
+                        if (pc && m.candidate) { try { await pc.addIceCandidate(JSON.parse(m.candidate)); } catch (e) {} }
+                    }
+                    else if (m.type === "stream_stop") { cerrarPc(); $("estado").textContent = "✓ SERVIDOR CONECTADO — esperando transmisión…"; }
+                };
+            };
+
+            async function alOffer(m) {
+                cerrarPc();
+                sessionId = m.sessionId;
+                pc = new RTCPeerConnection();
+                pc.ontrack = function (ev) { $("video").srcObject = ev.streams[0]; $("estado").textContent = "◉ RECIBIENDO VÍDEO"; };
+                pc.onicecandidate = function (ev) {
+                    if (ev.candidate) ws.send(JSON.stringify({ type: "ice", sessionId: sessionId, candidate: JSON.stringify(ev.candidate) }));
+                };
+                await pc.setRemoteDescription({ type: "offer", sdp: m.sdp });
+                var ans = await pc.createAnswer();
+                await pc.setLocalDescription(ans);
+                ws.send(JSON.stringify({ type: "answer", sessionId: sessionId, sdp: ans.sdp }));
+            }
+
+            function cerrarPc() {
+                if (pc) { try { pc.close(); } catch (e) {} pc = null; }
+                $("video").srcObject = null;
+            }
+        })();
+    </script>
+</body>
+</html>

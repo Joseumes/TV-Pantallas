@@ -1,0 +1,46 @@
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "com.universidad.pantallas"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.universidad.pantallas"
+        minSdk = 22          // Fire OS 5 en adelante; QD7QF corre Fire OS 8 (API 30)
+        targetSdk = 30       // compatibilidad probada Fire OS 8
+        versionCode = 2
+        versionName = "1.1-fit"
+    }
+
+    buildTypes {
+        // minifyEnabled queda en false por defecto (sin ofuscar).
+        release {
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+dependencies {
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    // leanback: no se usa en código (solo la categoría LEANBACK_LAUNCHER del
+    // manifiesto, que no necesita la librería). Se omite porque leanback:1.2.0
+    // exige compileSdk 35 + AGP 8.6 y rompería la compatibilidad Fire OS.
+    // WebSocket señalización
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // WebRTC nativo (PeerConnectionFactory, VideoTrack, VideoSink).
+    // NOTA: org.webrtc:google-webrtc murió con JCenter, y com.infobip:google-webrtc
+    // viene roto (su PeerConnectionFactory$Builder pide org.webrtc.Environment,
+    // clase que no incluye → NoClassDefFoundError al transmitir).
+    // Este es build oficial completo verificado clase por clase en Maven Central.
+    implementation("io.github.webrtc-sdk:android:125.6422.06.1")
+}

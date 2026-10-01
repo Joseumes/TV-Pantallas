@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Emisora · Pantallas</title>
+    <link rel="stylesheet" href="estilos.css" />
+</head>
+<body>
+    <header class="cabecera">
+        <h1>Emisora</h1>
+        <div class="cabecera-der">
+            <label class="clave">API Key: <input type="password" id="apiKey" size="20" /></label>
+            <a href="pantallas.html">Panel</a>
+        </div>
+    </header>
+    <main>
+        <section class="panel">
+            <p id="estadoWs">Señalización: conectando…</p>
+            <div class="fila">
+                <button type="button" id="btnCapturar">1 · Capturar pantalla</button>
+                <button type="button" id="btnTransmitir" disabled>2 · Transmitir</button>
+                <button type="button" class="secundario" id="btnCortar" disabled>Cortar</button>
+                <button type="button" class="secundario" id="btnLiberar">Liberar lab</button>
+            </div>
+            <video id="previa" autoplay muted playsinline style="width:100%;max-height:40vh;background:#000"></video>
+            <p id="info"></p>
+            <h2>Laboratorio</h2>
+            <div id="chips" class="tabs"></div>
+            <h2>TVs</h2>
+            <ul id="tvs"></ul>
+        </section>
+    </main>
+    <script src="config-web.js"></script>
+    <script src="emisora.js"></script>
+</body>
+</html>
