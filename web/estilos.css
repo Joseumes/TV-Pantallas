@@ -87,6 +87,8 @@ h1, h2, h3 { font-family: var(--f); margin: 0; font-weight: 700; letter-spacing:
   padding: 0 clamp(16px, 3vw, 40px); background: var(--verde); color: #fff;
 }
 .marca { display: flex; align-items: center; gap: 14px; color: #fff; }
+/* Logo oficial (verde sobre transparente): en fondos verdes se muestra en blanco. */
+.logo-umes { height: 48px; width: auto; flex: none; filter: brightness(0) invert(1); }
 .marca-svg { width: 38px; height: 32px; flex: none; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .marca-svg .arco { stroke: var(--lima); }
 .marca-texto { display: flex; flex-direction: column; line-height: 1; gap: 3px; }
@@ -613,7 +615,8 @@ html.lenis, html.lenis body { height: auto; }
 .crt-mitad.arriba { top: 0; } .crt-mitad.abajo { bottom: 0; }
 .crt-linea { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; transform-origin: 50% 50%; background: #fff; box-shadow: 0 0 16px 3px rgba(197,216,46,.85), 0 0 50px 8px rgba(197,216,46,.35); }
 .crt-marca { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 14px; color: #fff; text-align: center; }
-.crt-marca .marca-svg { width: 92px; height: 78px; stroke-width: 2.4; }
+.crt-marca .crt-logo { height: clamp(140px, 26vh, 220px); }
+.pie-logo { height: 64px; margin-bottom: 6px; }
 .crt-nombre { font: 700 clamp(3.2rem, 9vw, 6rem)/1 var(--f); letter-spacing: .04em; overflow: hidden; }
 .crt-sub { font: 500 15px var(--f); letter-spacing: .3em; text-transform: uppercase; color: var(--lima); }
 .crt-osd { position: absolute; left: 28px; right: 28px; bottom: 26px; display: flex; justify-content: space-between; gap: 12px; font: 600 12px var(--f); letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.75); z-index: 2; }

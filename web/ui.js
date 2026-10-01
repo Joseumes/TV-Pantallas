@@ -49,8 +49,6 @@
 
     var CANALES = { "": "Inicio", "pantallas.html": "Inicio", "emisora.html": "Transmitir", "tv-sim.html": "TV de prueba" };
     function canal() { return CANALES[location.pathname.split("/").pop()] || "Inicio"; }
-    var MARCA_SVG = "<svg class='marca-svg' viewBox='0 0 48 40' aria-hidden='true'><rect x='2.5' y='2.5' width='43' height='29' rx='6'/>" +
-        "<path class='arco' d='M15 25v-6a9 9 0 0 1 18 0v6'/><path d='M18 37.5h12'/></svg>";
 
     //--- Texto que se descifra (glifos aleatorios → texto real) ------------------
     var GLIFOS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%/+·";
@@ -98,7 +96,7 @@
         if (!anima()) { raiz.classList.remove("pre"); return; }
         var crt = el("div", "crt" + (primeraVez ? " arranque" : ""),
             "<div class='crt-mitad arriba'></div><div class='crt-mitad abajo'></div><div class='crt-linea'></div>" +
-            (primeraVez ? "<div class='crt-marca'>" + MARCA_SVG + "<div class='crt-nombre'>UMES</div><div class='crt-sub'>Sistema de Pantallas</div></div>" : "") +
+            (primeraVez ? "<div class='crt-marca'><img class='logo-umes crt-logo' src='vendor/logo-umes.png' alt='' /><div class='crt-sub'>Sistema de Pantallas</div></div>" : "") +
             "<div class='crt-osd'><span>Universidad Mesoamericana</span><span class='crt-b'></span></div>");
         crt.setAttribute("aria-hidden", "true");
         document.body.appendChild(crt);
@@ -114,14 +112,11 @@
             }
         });
         if (marca) {
-            // Presentación de la marca: el ícono se dibuja, "UMES" sube letra a letra.
-            var trazos = marca.querySelectorAll("rect, path");
-            trazos.forEach(function (p) { var l = p.getTotalLength ? p.getTotalLength() : 200; g.set(p, { strokeDasharray: l, strokeDashoffset: l }); });
-            var nombre = marca.querySelector(".crt-nombre");
-            nombre.innerHTML = "UMES".split("").map(function (c) { return "<span class='char'>" + c + "</span>"; }).join("");
+            // Presentación de la marca: el logo oficial se revela de abajo hacia arriba.
+            var logo = marca.querySelector(".crt-logo");
             g.set(linea, { scaleX: 0, opacity: 0 });
-            tl.to(trazos, { strokeDashoffset: 0, duration: .7, ease: "power2.inOut", stagger: .12 })
-                .from(nombre.children, { yPercent: 110, duration: .7, ease: EXPO, stagger: .06 }, .25)
+            tl.fromTo(logo, { clipPath: "inset(100% 0% 0% 0%)", y: 30, scale: .92 },
+                { clipPath: "inset(0% 0% 0% 0%)", y: 0, scale: 1, duration: 1, ease: EXPO })
                 .from(marca.querySelector(".crt-sub"), { opacity: 0, y: 10, duration: .5, ease: EXPO }, .5)
                 .add(function () { descifrar(marca.querySelector(".crt-sub"), 0, .6); descifrar(osd, 0, .7); }, .5)
                 .from(osd, { opacity: 0, duration: .3 }, .4)
@@ -823,6 +818,7 @@
         if (!main || document.querySelector(".pie")) return;
         var f = el("footer", "pie",
             "<div class='pie-franja'></div><div class='pie-int'>" +
+            "<img class='logo-umes pie-logo' src='vendor/logo-umes.png' alt='UMES · Universidad Mesoamericana' />" +
             "<div class='pie-fila'><span class='etiqueta'><b>●</b> Universidad Mesoamericana · Sistema de Pantallas</span><span class='etiqueta pie-reloj'></span></div>" +
             "<div class='pie-marca' aria-hidden='true'>UMES</div>" +
             "<div class='pie-fila'><span>¿Algo no funciona? Comunícate con soporte técnico de tu facultad.</span><span>Guatemala</span></div></div>");
