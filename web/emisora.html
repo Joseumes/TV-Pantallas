@@ -3,80 +3,106 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#080a09" />
-    <title>Emisora · Pantallas</title>
-    <link rel="preload" href="vendor/bricolage.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#0a4735" />
+    <title>Transmitir · Sistema de Pantallas UMES</title>
+    <link rel="preload" href="vendor/jost.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="estilos.css" />
+    <script>if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("pre");</script>
 </head>
 <body data-emision="idle">
     <header class="cabecera">
-        <a class="marca" href="pantallas.html" aria-label="Pantallas, inicio">
-            <svg viewBox="0 0 34 34" aria-hidden="true">
-                <path class="arco" d="M11 23a8 8 0 0 1 0-12" /><path class="arco" d="M7 27a14 14 0 0 1 0-20" /><path class="arco" d="M3 31a20 20 0 0 1 0-28" />
-                <rect class="nucleo" x="15" y="12" width="17" height="11" rx="2.5" />
-            </svg>
-            <span class="marca-texto"><strong>pantallas</strong><span>emisora</span></span>
-        </a>
-        <nav class="nav" aria-label="Secciones">
-            <a href="pantallas.html">Panel</a>
-            <a href="emisora.html" aria-current="page">Emisora</a>
-            <a href="tv-sim.html">TV simulada</a>
-        </nav>
-        <div class="cabecera-der">
-            <span class="estado-ws" id="wsChip"><span class="punto"></span><span id="estadoWs">Señalización: conectando…</span></span>
-            <div class="llave">
-                <button type="button" class="secundario llave-boton" aria-expanded="false" aria-controls="panelLlave">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2"/></svg>
-                    <span class="solo-lectores">API Key</span>
-                </button>
-                <div class="llave-panel" id="panelLlave">
-                    <label for="apiKey"><span class="etiqueta">API Key (se guarda al salir del campo)</span></label>
-                    <div class="fila"><input type="password" id="apiKey" autocomplete="off" spellcheck="false" /></div>
+        <div class="cab-top">
+            <a class="marca" href="pantallas.html" aria-label="UMES, Sistema de Pantallas: inicio">
+                <svg class="marca-svg" viewBox="0 0 48 40" aria-hidden="true"><rect x="2.5" y="2.5" width="43" height="29" rx="6" /><path class="arco" d="M15 25v-6a9 9 0 0 1 18 0v6" /><path d="M18 37.5h12" /></svg>
+                <span class="marca-texto"><strong>UMES</strong><span>Universidad Mesoamericana</span></span>
+                <span class="cab-sistema">Sistema de Pantallas</span>
+            </a>
+            <div class="cabecera-der">
+                <span class="estado-ws" id="wsChip"><span class="punto"></span><span id="estadoWs">Conectando…</span></span>
+                <div class="llave">
+                    <button type="button" class="llave-boton" aria-expanded="false" aria-controls="panelLlave" title="Clave de acceso (soporte técnico)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2" /></svg>
+                        <span class="solo-lectores">Clave de acceso</span>
+                    </button>
+                    <div class="llave-panel" id="panelLlave">
+                        <label for="apiKey"><span class="etiqueta">Clave de acceso (API Key)</span></label>
+                        <p>Normalmente ya viene configurada. Se guarda sola al salir del campo.</p>
+                        <div class="fila"><input type="password" id="apiKey" autocomplete="off" spellcheck="false" /></div>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="cab-nav">
+            <nav class="nav" aria-label="Secciones">
+                <a href="pantallas.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /><path d="M10 20v-6h4v6" /></svg><span>Inicio</span></a>
+                <a href="emisora.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" /><path d="M2 12a8 8 0 0 1 8 8M2 16a4 4 0 0 1 4 4" /></svg><span>Transmitir</span></a>
+                <a href="tv-sim.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M8 3l4 3 4-3M8 21h8" /></svg><span>TV de prueba</span></a>
+            </nav>
         </div>
     </header>
 
     <main>
         <section class="panel">
-            <div class="seccion-cab" style="margin-bottom:28px">
+            <div class="seccion-cab" style="margin-bottom:30px">
                 <div>
-                    <span class="etiqueta"><b>●</b> Estudio de esta PC</span>
-                    <h1 class="titular" id="titular" style="font-size:clamp(2.4rem,6vw,4.8rem)">Sal al aire.</h1>
+                    <p class="etiqueta" style="margin:0 0 14px"><b>●</b> Transmitir desde esta computadora</p>
+                    <h1 class="titular" id="titular" style="font-size:clamp(2.2rem,5vw,4rem)">Comparte tu pantalla con el salón.</h1>
                 </div>
-                <p>Captura tu pantalla, revisa la previa y transmítela a las TVs del laboratorio que elijas a la derecha.</p>
+                <p>Sigue los pasos numerados. La vista previa te muestra exactamente lo que verán tus estudiantes en las televisiones.</p>
             </div>
 
             <div class="emi">
                 <div class="tarjeta escenario">
                     <div class="monitor">
                         <div class="monitor-cab">
-                            <span class="tally" id="tally"><i></i><span id="tallyTxt">Sin captura</span></span>
-                            <span class="reloj" id="reloj">00:00:00</span>
+                            <span class="tally" id="tally"><i></i><span id="tallyTxt">Sin pantalla compartida</span></span>
+                            <span class="reloj" id="reloj" title="Tiempo transmitiendo">00:00:00</span>
                         </div>
                         <div class="pantalla-previa">
-                            <div class="sin-senal"><div class="barras"></div>
-                                <div class="msg"><b>Sin señal de entrada</b><span>Paso 1 · captura una pantalla</span></div>
+                            <div class="sin-senal"><div class="barras"></div><canvas class="ruido" id="ruidoPrevia"></canvas>
+                                <div class="msg"><b>Aún no compartes tu pantalla</b><span>Paso 2 · pulsa «Compartir mi pantalla»</span></div>
                             </div>
                             <video id="previa" autoplay muted playsinline></video>
                         </div>
                     </div>
-                    <div class="pasos">
-                        <button type="button" id="btnCapturar">1 · Capturar pantalla</button>
-                        <button type="button" id="btnTransmitir" disabled>2 · Transmitir <span class="flecha">→</span></button>
-                        <button type="button" class="peligro" id="btnCortar" disabled>Cortar</button>
-                        <button type="button" class="fantasma" id="btnLiberar">Liberar lab</button>
-                    </div>
-                    <p id="info" class="consola" aria-live="polite" data-vacio="Esperando. Captura una pantalla para empezar."></p>
+                    <p id="info" class="consola" aria-live="polite" data-vacio="Aquí verás mensajes sobre tu transmisión."></p>
                 </div>
 
                 <aside class="lateral">
-                    <div class="tarjeta">
-                        <h2>Laboratorio <span class="etiqueta">destino</span></h2>
-                        <div id="chips" class="tabs"></div>
+                    <div class="tarjeta" style="padding:8px">
+                        <ol class="guia">
+                            <li class="g-paso" id="gPaso1">
+                                <span class="g-num">1</span>
+                                <div>
+                                    <h3>Elige el laboratorio</h3>
+                                    <p>Las televisiones de ese laboratorio recibirán tu pantalla.</p>
+                                    <div id="chips" class="tabs"></div>
+                                </div>
+                            </li>
+                            <li class="g-paso" id="gPaso2">
+                                <span class="g-num">2</span>
+                                <div>
+                                    <h3>Comparte tu pantalla</h3>
+                                    <p>El navegador te preguntará qué ventana o pantalla quieres mostrar.</p>
+                                    <button type="button" id="btnCapturar" data-rodar>Compartir mi pantalla</button>
+                                </div>
+                            </li>
+                            <li class="g-paso" id="gPaso3">
+                                <span class="g-num">3</span>
+                                <div>
+                                    <h3>Transmite a las TVs</h3>
+                                    <p>Tu pantalla aparecerá en las televisiones en unos segundos.</p>
+                                    <button type="button" id="btnTransmitir" disabled data-rodar>Transmitir a las TVs <span class="flecha">→</span></button>
+                                </div>
+                            </li>
+                        </ol>
+                        <div class="fin-tx">
+                            <button type="button" class="peligro" id="btnCortar" disabled data-rodar>Terminar transmisión</button>
+                            <button type="button" class="fantasma" id="btnLiberar" title="Si las TVs quedaron ocupadas por una transmisión anterior">¿Pantallas ocupadas? Liberar laboratorio</button>
+                        </div>
                     </div>
                     <div class="tarjeta">
-                        <h2>TVs <span class="etiqueta" id="cuentaTvs">conectadas</span></h2>
+                        <h2>Pantallas del laboratorio <span class="etiqueta" id="cuentaTvs">conectadas</span></h2>
                         <ul id="tvs"></ul>
                     </div>
                 </aside>
@@ -85,6 +111,8 @@
     </main>
     <script src="vendor/gsap.min.js"></script>
     <script src="vendor/SplitText.min.js"></script>
+    <script src="vendor/ScrollTrigger.min.js"></script>
+    <script src="vendor/lenis.min.js"></script>
     <script src="ui.js"></script>
     <script src="config-web.js"></script>
     <script src="emisora.js"></script>

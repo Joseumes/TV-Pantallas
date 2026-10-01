@@ -3,40 +3,44 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#080a09" />
-    <title>Sala de control · Pantallas</title>
-    <link rel="preload" href="vendor/bricolage.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#0a4735" />
+    <title>Sistema de Pantallas · UMES</title>
+    <link rel="preload" href="vendor/jost.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="estilos.css" />
+    <script>if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("pre");</script>
 </head>
 <body>
     <header class="cabecera">
-        <a class="marca" href="pantallas.html" aria-label="Pantallas, inicio">
-            <svg viewBox="0 0 34 34" aria-hidden="true">
-                <path class="arco" d="M11 23a8 8 0 0 1 0-12" /><path class="arco" d="M7 27a14 14 0 0 1 0-20" /><path class="arco" d="M3 31a20 20 0 0 1 0-28" />
-                <rect class="nucleo" x="15" y="12" width="17" height="11" rx="2.5" />
-            </svg>
-            <span class="marca-texto"><strong>pantallas</strong><span>sala de control</span></span>
-        </a>
-        <nav class="nav" aria-label="Secciones">
-            <a href="pantallas.html" aria-current="page">Panel</a>
-            <a href="emisora.html">Emisora</a>
-            <a href="tv-sim.html">TV simulada</a>
-        </nav>
-        <div class="cabecera-der">
-            <span class="estado-ws" id="servidorInfo"><span class="punto"></span><span>servidor <span class="txt-largo" id="servidorTxt">—</span></span></span>
-            <div class="llave">
-                <button type="button" class="secundario llave-boton" aria-expanded="false" aria-controls="panelLlave">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2"/></svg>
-                    <span class="solo-lectores">API Key</span>
-                </button>
-                <div class="llave-panel" id="panelLlave">
-                    <label for="apiKey"><span class="etiqueta">API Key del servidor</span></label>
-                    <div class="fila">
-                        <input type="password" id="apiKey" autocomplete="off" spellcheck="false" />
-                        <button type="button" class="chico" id="btnGuardarClave">Guardar</button>
+        <div class="cab-top">
+            <a class="marca" href="pantallas.html" aria-label="UMES, Sistema de Pantallas: inicio">
+                <svg class="marca-svg" viewBox="0 0 48 40" aria-hidden="true"><rect x="2.5" y="2.5" width="43" height="29" rx="6" /><path class="arco" d="M15 25v-6a9 9 0 0 1 18 0v6" /><path d="M18 37.5h12" /></svg>
+                <span class="marca-texto"><strong>UMES</strong><span>Universidad Mesoamericana</span></span>
+                <span class="cab-sistema">Sistema de Pantallas</span>
+            </a>
+            <div class="cabecera-der">
+                <span class="estado-ws" id="servidorInfo"><span class="punto"></span><span id="servidorTxt">Conectando…</span></span>
+                <div class="llave">
+                    <button type="button" class="llave-boton" aria-expanded="false" aria-controls="panelLlave" title="Clave de acceso (soporte técnico)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2" /></svg>
+                        <span class="solo-lectores">Clave de acceso</span>
+                    </button>
+                    <div class="llave-panel" id="panelLlave">
+                        <label for="apiKey"><span class="etiqueta">Clave de acceso (API Key)</span></label>
+                        <p>Normalmente ya viene configurada. Solo cámbiala si soporte técnico te lo indica.</p>
+                        <div class="fila">
+                            <input type="password" id="apiKey" autocomplete="off" spellcheck="false" />
+                            <button type="button" class="chico" id="btnGuardarClave" data-rodar>Guardar</button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="cab-nav">
+            <nav class="nav" aria-label="Secciones">
+                <a href="pantallas.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /><path d="M10 20v-6h4v6" /></svg><span>Inicio</span></a>
+                <a href="emisora.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" /><path d="M2 12a8 8 0 0 1 8 8M2 16a4 4 0 0 1 4 4" /></svg><span>Transmitir</span></a>
+                <a href="tv-sim.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M8 3l4 3 4-3M8 21h8" /></svg><span>TV de prueba</span></a>
+            </nav>
         </div>
     </header>
 
@@ -45,75 +49,124 @@
         <section id="vistaHome" class="panel">
             <div class="hero">
                 <div class="hero-texto">
-                    <p class="etiqueta">Transmisión en red local · <b id="fechaHoy">hoy</b></p>
-                    <h1 class="titular" id="titular">Una señal,<br />todas las <em>pantallas.</em></h1>
-                    <p class="hero-sub">Elige un laboratorio, marca sus TVs y emite desde su PC. Cada laboratorio es un <strong>canal independiente</strong>: pueden salir al aire varios a la vez sin quitarse pantallas.</p>
+                    <p class="etiqueta">Sistema de Pantallas · <b id="fechaHoy">hoy</b></p>
+                    <h1 class="titular" id="titular">Proyecta tu clase en todas las <em>pantallas</em> del salón.</h1>
+                    <p class="hero-sub">Elige tu laboratorio, marca las televisiones y comparte tu pantalla. <strong>Sin cables</strong>, desde tu computadora.</p>
+                    <div class="hero-cta">
+                        <a class="boton" href="emisora.html" data-rodar>Comenzar a transmitir <span class="flecha">→</span></a>
+                        <a class="boton secundario" href="#laboratorios" data-rodar>Ver laboratorios</a>
+                    </div>
                 </div>
-                <div class="onda" id="onda"></div>
+                <div class="tarjeta onda-caja">
+                    <div class="onda-cab">
+                        <h2>En este momento</h2>
+                        <div class="leyenda"><span><i class="dot online"></i>Lista</span><span><i class="dot streaming"></i>Transmitiendo</span><span><i class="dot offline"></i>Apagada</span></div>
+                    </div>
+                    <div class="onda" id="onda"></div>
+                </div>
             </div>
 
             <div class="kpis" id="kpis">
-                <div class="kpi spot"><span class="etiqueta">Pantallas</span><span class="num" id="kTotal">0</span></div>
-                <div class="kpi spot"><span class="etiqueta"><i class="dot online"></i>En línea</span><span class="num" id="kOn">0</span></div>
-                <div class="kpi k-vivo spot"><span class="etiqueta"><i class="dot streaming"></i>Al aire</span><span class="num" id="kSt">0</span></div>
-                <div class="kpi k-fuera spot"><span class="etiqueta"><i class="dot offline"></i>Fuera</span><span class="num" id="kOff">0</span></div>
+                <div class="kpi tarjeta spot"><span class="etiqueta">Pantallas</span><span class="num" id="kTotal">0</span><span class="ayuda-kpi">Registradas en el sistema</span></div>
+                <div class="kpi k-on tarjeta spot"><span class="etiqueta"><i class="dot online"></i>Listas</span><span class="num" id="kOn">0</span><span class="ayuda-kpi">Encendidas y listas para usar</span></div>
+                <div class="kpi k-vivo tarjeta spot"><span class="etiqueta"><i class="dot streaming"></i>Transmitiendo</span><span class="num" id="kSt">0</span><span class="ayuda-kpi">Mostrando una clase ahora</span></div>
+                <div class="kpi k-fuera tarjeta spot"><span class="etiqueta"><i class="dot offline"></i>Apagadas</span><span class="num" id="kOff">0</span><span class="ayuda-kpi">Apagadas o sin conexión</span></div>
             </div>
 
             <div class="seccion">
                 <div class="seccion-cab">
-                    <div>
-                        <span class="etiqueta"><b>01</b> / Canales</span>
-                        <h2>Laboratorios</h2>
+                    <h2 class="capsula">¿Cómo se usa?</h2>
+                    <p>Son tres pasos. Si en algún momento te pierdes, el botón <strong>¿Cómo transmito?</strong> de la esquina te los recuerda.</p>
+                </div>
+                <div class="pasos-guia" id="pasosGuia">
+                    <div class="trazo" aria-hidden="true"></div>
+                    <div class="paso tarjeta spot">
+                        <span class="paso-num">1</span>
+                        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12" /><path d="M9 21v-6h6v6" /></svg>
+                        <h3>Elige tu laboratorio</h3>
+                        <p>Toca la tarjeta del laboratorio donde estás dando clase.</p>
                     </div>
-                    <p>Entra a uno para ver sus TVs y transmitir solo ahí. Cada cuadro es una pantalla, con su color de estado.</p>
+                    <div class="paso tarjeta spot">
+                        <span class="paso-num">2</span>
+                        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2" /><path d="M8.5 11l2.5 2.5 4.5-5" /></svg>
+                        <h3>Marca las pantallas</h3>
+                        <p>Selecciona las televisiones donde quieres que se vea tu clase.</p>
+                    </div>
+                    <div class="paso tarjeta spot">
+                        <span class="paso-num">3</span>
+                        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" /><path d="M2 12a8 8 0 0 1 8 8M2 16a4 4 0 0 1 4 4" /></svg>
+                        <h3>Comparte y transmite</h3>
+                        <p>En <strong>Transmitir</strong>, pulsa «Compartir mi pantalla» y luego «Transmitir a las TVs».</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cintillos" aria-hidden="true">
+                <div class="cintillo b"><div class="cintillo-pista" id="cintilloB"></div></div>
+                <div class="cintillo a"><div class="cintillo-pista" id="cintilloA"></div></div>
+            </div>
+
+            <div class="seccion" id="laboratorios">
+                <div class="seccion-cab">
+                    <h2 class="capsula">Laboratorios</h2>
+                    <p>Toca el laboratorio donde estás dando clase. Cada cuadrito de color es una televisión.</p>
                 </div>
                 <div id="labCards" class="lab-grid"></div>
             </div>
 
             <div class="seccion">
-                <div class="seccion-cab">
-                    <div>
-                        <span class="etiqueta"><b>02</b> / Alta</span>
-                        <h2>Agregar TV Hisense</h2>
-                    </div>
-                    <p>La TV se configura <strong>una sola vez</strong> con los datos de su ficha. Aquí ves la ficha mientras escribes.</p>
-                </div>
-                <div class="tarjeta alta">
-                    <div class="alta-form">
-                        <div class="fila">
-                            <label><span class="etiqueta">Código</span><input id="nuevoId" placeholder="LAB1-01" autocomplete="off" spellcheck="false" /></label>
-                            <label><span class="etiqueta">Nombre</span><input id="nuevoNombre" placeholder="Lab 1 TV 1" autocomplete="off" /></label>
+                <div class="tarjeta admin" id="admin">
+                    <button type="button" class="admin-cab" id="btnAdmin" aria-expanded="false" aria-controls="adminCuerpo">
+                        <span class="admin-tit">
+                            <span class="admin-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg></span>
+                            <span><strong>Administración · Agregar una TV nueva</strong><small>Solo para soporte técnico. No es necesario para transmitir.</small></span>
+                        </span>
+                        <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+                    </button>
+                    <div class="admin-cuerpo" id="adminCuerpo"><div>
+                        <div class="alta">
+                            <div class="alta-form">
+                                <div class="fila">
+                                    <label><span class="etiqueta">Código de la TV</span><input id="nuevoId" placeholder="LAB1-01" autocomplete="off" spellcheck="false" /></label>
+                                    <label><span class="etiqueta">Nombre</span><input id="nuevoNombre" placeholder="Lab 1 TV 1" autocomplete="off" /></label>
+                                </div>
+                                <div class="fila">
+                                    <label><span class="etiqueta">Laboratorio</span><input id="nuevoGrupo" placeholder="lab1" list="gruposExistentes" autocomplete="off" /></label>
+                                    <datalist id="gruposExistentes"></datalist>
+                                </div>
+                                <button type="button" id="btnAgregar" data-rodar>Agregar TV <span class="flecha">→</span></button>
+                                <p class="nota">Después, en la televisión abre la aplicación → <strong>Configurar</strong> y escribe el servidor, el puerto, el código y el token de su ficha. La TV aparecerá como <strong>Lista</strong> sola.</p>
+                            </div>
+                            <div class="ticket-marco"><div class="ticket" aria-hidden="true">
+                                <div class="t-cab"><span>Ficha de TV · UMES</span><span id="tkLab">lab1</span></div>
+                                <div class="t-id" id="tkId">LAB1-01</div>
+                                <div class="t-nom" id="tkNom">Lab 1 TV 1</div>
+                                <div class="t-linea"></div>
+                                <dl>
+                                    <dt>Servidor</dt><dd id="tkSrv">—</dd>
+                                    <dt>Puerto</dt><dd id="tkPto">—</dd>
+                                    <dt>Token</dt><dd>se genera al agregar</dd>
+                                </dl>
+                                <div class="barras" id="tkBarras"></div>
+                            </div></div>
                         </div>
-                        <div class="fila">
-                            <label><span class="etiqueta">Laboratorio</span><input id="nuevoGrupo" placeholder="lab1" list="gruposExistentes" autocomplete="off" /></label>
-                            <datalist id="gruposExistentes"></datalist>
-                        </div>
-                        <button type="button" id="btnAgregar">Agregar TV <span class="flecha">→</span></button>
-                        <p class="nota">Después, en la TV abre la app → <strong>Configurar</strong> y escribe servidor, puerto, código y token. La tarjeta pasará a <strong>en línea</strong> sola.</p>
-                    </div>
-                    <div class="ticket" aria-hidden="true">
-                        <div class="t-cab"><span>Ficha de TV</span><span id="tkLab">lab1</span></div>
-                        <div class="t-id" id="tkId">LAB1-01</div>
-                        <div class="t-nom" id="tkNom">Lab 1 TV 1</div>
-                        <div class="t-linea"></div>
-                        <dl>
-                            <dt>Servidor</dt><dd id="tkSrv">—</dd>
-                            <dt>Puerto</dt><dd id="tkPto">—</dd>
-                            <dt>Token</dt><dd>se genera al agregar</dd>
-                        </dl>
-                        <div class="barras" id="tkBarras"></div>
-                    </div>
+                    </div></div>
                 </div>
             </div>
         </section>
 
         <!-- VISTA LAB -->
         <section id="vistaLab" class="panel oculto">
-            <button type="button" class="volver" id="btnVolver"><span class="flecha">←</span> Laboratorios</button>
+            <button type="button" class="volver" id="btnVolver"><span class="flecha">←</span> Volver a laboratorios</button>
             <div class="lab-titulo">
                 <h2 id="labTitulo">Lab</h2>
                 <div class="resumen" id="labResumen"></div>
             </div>
+            <ol class="guia-lab" id="guiaLab">
+                <li class="hecho"><span class="n">1</span>Elegiste el laboratorio</li>
+                <li id="guia2" class="actual"><span class="n">2</span>Marca las pantallas donde quieres proyectar</li>
+                <li id="guia3"><span class="n">3</span>Pulsa «Preparar transmisión»</li>
+            </ol>
             <div id="sesionLab"></div>
             <div class="barra">
                 <div class="grupo">
@@ -121,20 +174,18 @@
                     <span class="contador-sel" id="contadorSel"><b>0</b> marcadas</span>
                 </div>
                 <div class="grupo">
-                    <button type="button" class="fantasma" id="btnActualizar">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Actualizar
+                    <button type="button" class="fantasma" id="btnActualizar" title="Volver a consultar el estado de las TVs">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>Actualizar
                     </button>
-                    <button type="button" class="secundario" id="btnDetener">Detener sesión</button>
-                    <button type="button" id="btnSesion">Transmitir a seleccionadas <span class="flecha">→</span></button>
+                    <button type="button" class="secundario" id="btnDetener" data-rodar>Detener transmisión</button>
+                    <button type="button" id="btnSesion" data-rodar>Preparar transmisión <span class="flecha">→</span></button>
                 </div>
             </div>
             <div id="lista" class="tv-grid"></div>
             <div class="seccion">
                 <div class="seccion-cab">
-                    <div>
-                        <span class="etiqueta"><b>●</b> En todo el edificio</span>
-                        <h2>Sesiones activas</h2>
-                    </div>
+                    <h2 class="capsula">Transmisiones activas</h2>
+                    <p>Todo lo que se está transmitiendo ahora mismo en la universidad.</p>
                 </div>
                 <ul id="sesiones" class="sesiones"></ul>
             </div>
@@ -142,6 +193,8 @@
     </main>
     <script src="vendor/gsap.min.js"></script>
     <script src="vendor/SplitText.min.js"></script>
+    <script src="vendor/ScrollTrigger.min.js"></script>
+    <script src="vendor/lenis.min.js"></script>
     <script src="ui.js"></script>
     <script src="config-web.js"></script>
     <script src="pantallas.js"></script>

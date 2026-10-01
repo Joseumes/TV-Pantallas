@@ -56,8 +56,10 @@ No se aplicó ninguno de estos cambios: el rediseño solo tocó la capa visual.
 
 ## Qué cambió en el diseño (referencia)
 
-- `web/estilos.css`: sistema visual nuevo (sala de control de TV: negro tinta, hueso y verde señal; Bricolage Grotesque + Instrument Sans + JetBrains Mono).
-- `web/ui.js` (nuevo): toasts, modales (reemplazan `alert`, `confirm` y `prompt`), spotlight, botones magnéticos, contadores animados, diagrama de señal del hero.
-- `web/vendor/`: GSAP 3.13 + SplitText y las fuentes, servidos en local para que todo funcione sin internet.
+- `web/estilos.css`: identidad de la Universidad Mesoamericana (verde `#0A4735`, crema `#E6DECA`, blanco; tipografía Jost, alternativa libre a Futura; encabezados en cápsula como en umes.edu.gt).
+- Pensado para catedráticos: lenguaje simple ("Lista", "Transmitiendo", "Apagada"), guía de 3 pasos en el inicio, pasos numerados en el laboratorio y en Transmitir, botón flotante "¿Cómo transmito?" y la parte técnica (alta de TVs, tokens) plegada bajo "Administración".
+- `web/ui.js`: encendido tipo TV con la marca UMES, transiciones de canal, toasts, modales (reemplazan `alert`, `confirm` y `prompt`), odómetros, cintillos, diagrama de señal, ayuda flotante y pie institucional.
+- `web/vendor/`: GSAP 3.13 (con SplitText y ScrollTrigger), Lenis y la fuente Jost, servidos en local para que todo funcione sin internet.
 - `pantallas.html/js`, `emisora.html/js`, `tv-sim.html`: vistas rehechas. Mismos IDs, mismos endpoints y misma lógica.
 - `servidor/server.js`: solo se agregaron los tipos MIME `.woff2` y `.svg` para servir las fuentes.
+- Rendimiento: solo se animan `transform`/`opacity`; sin `backdrop-filter` ni capas de mezcla a pantalla completa; animaciones continuas pausadas fuera de pantalla; una sola fuente (26 KB). Medido en un recorrido completo de la página: 60 fps sostenidos y ninguna tarea larga.

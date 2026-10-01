@@ -30,9 +30,31 @@
         $("wsChip").classList.toggle("mal", ok === false);
     }
     var relojTimer = null, relojInicio = 0;
+    // Pasos numerados: cuál está hecho, cuál toca ahora y cuál espera.
+    function pasos(modo) {
+        var est = {
+            idle: ["hecho", "actual", "espera"],
+            capturada: ["hecho", "hecho", "actual"],
+            aire: ["hecho", "hecho", "hecho"]
+        }[modo];
+        ["gPaso1", "gPaso2", "gPaso3"].forEach(function (id, i) {
+            var li = $(id), antes = li.className;
+            li.className = "g-paso " + est[i];
+            if (pasos.listo && antes !== li.className && est[i] === "actual" && UI.anima()) {
+                UI.gsap.fromTo(li, { x: -12 }, { x: 0, duration: .8, ease: "elastic.out(1, .45)", clearProps: "transform" });
+            }
+        });
+    }
     function emision(modo) {
+        var previo = document.body.dataset.emision;
         document.body.dataset.emision = modo;
-        $("tallyTxt").textContent = { idle: "Sin captura", capturada: "Previa lista", aire: "Al aire" }[modo];
+        pasos(modo);
+        var pant = document.querySelector(".pantalla-previa");
+        if (modo === "aire" && previo !== "aire") UI.cuentaRegresiva(pant);
+        else if (modo === "capturada" && previo === "idle") UI.encenderPantalla(pant);
+        else if (previo === "aire" && modo !== "aire") UI.glitch(pant);
+        if (modo !== previo) UI.osd({ idle: "Sin pantalla compartida", capturada: "Vista previa lista", aire: "● En vivo" }[modo]);
+        $("tallyTxt").textContent = { idle: "Sin pantalla compartida", capturada: "Vista previa lista", aire: "En vivo" }[modo];
         clearInterval(relojTimer);
         if (modo === "aire") {
             relojInicio = Date.now();
@@ -43,19 +65,21 @@
                 }).join(":");
             }, 1000);
         } else $("reloj").textContent = "00:00:00";
-        if (window.UI && UI.anima()) {
+        if (UI.anima()) {
             UI.gsap.fromTo(".monitor", { scale: .985 }, { scale: 1, duration: .9, ease: "elastic.out(1, .5)" });
+            UI.gsap.fromTo("#tally i", { scale: 2.4 }, { scale: 1, duration: .6, ease: "back.out(3)" });
+            UI.descifrar($("tallyTxt"), 0, .5);
         }
     }
 
     function conectar() {
         ws = new WebSocket(wsUrl());
         ws.onopen = function () {
-            estadoWs("Señalización: conectada", true);
+            estadoWs("Sistema conectado", true);
             ws.send(JSON.stringify({ type: "hello_emisora" }));
         };
         ws.onclose = function () {
-            estadoWs("Señalización: caída, reintentando…", false);
+            estadoWs("Sin conexión, reintentando…", false);
             setTimeout(conectar, 3000);
         };
         ws.onmessage = async function (ev) {
@@ -108,7 +132,7 @@
         if (filtro !== "todas" && gs.indexOf(filtro) < 0) filtro = "todas";
         var chips = $("chips");
         chips.innerHTML = "";
-        [["todas", "Todas"]].concat(gs.map(function (g) { return [g, g]; })).forEach(function (par) {
+        [["todas", "Todos"]].concat(gs.map(function (g) { return [g, g]; })).forEach(function (par) {
             var b = document.createElement("button");
             b.type = "button";
             b.className = "tab" + (filtro === par[0] ? " activa" : "");
@@ -119,26 +143,31 @@
         var ul = $("tvs"); ul.innerHTML = "";
         var lista = visibles();
         var previas = pintar.vistas || {};
-        var nuevas = [];
+        var vistas = {}, nuevas = [];
         lista.forEach(function (id) {
             var t = tvsOnline[id];
             var li = document.createElement("li");
             var ocupada = t.estado === "streaming" && !pcs[id];
-            var tag = pcs[id] ? "Transmitiendo" : (ocupada ? "Ocupada" : "Lista");
+            var enlazada = pcs[id] && pcs[id].connectionState === "connected";
+            var tag = pcs[id] ? (enlazada ? "En vivo" : "Conectando…") : (ocupada ? "Ocupada" : "Lista");
             li.innerHTML = "<span class='dot " + (pcs[id] ? "streaming" : ocupada ? "offline" : "online") + "'></span>" +
                 "<span><span class='n'></span><span class='c'></span></span><span class='tag'></span>";
             li.querySelector(".n").textContent = t.nombre;
-            li.querySelector(".c").textContent = id + " · " + t.grupo + (ocupada ? " · en otra sesión" : "");
+            li.querySelector(".c").textContent = id + " · " + t.grupo + (ocupada ? " · usada por otra transmisión" : "");
             li.querySelector(".tag").textContent = tag;
             li.title = id + " — " + t.nombre + " [" + t.grupo + "]";
             if (ocupada) li.className = "ocupada";
-            else if (pcs[id]) li.className = "tx";
+            else if (pcs[id]) li.className = "tx" + (enlazada ? "" : " enlazando");
             if (!previas[id]) nuevas.push(li);
+            else if (previas[id] !== tag && window.UI && UI.anima()) {
+                UI.gsap.fromTo(li, { scale: .96 }, { scale: 1, duration: .7, ease: "elastic.out(1, .45)", clearProps: "scale" });
+                UI.gsap.fromTo(li.querySelector(".tag"), { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: .45, ease: "back.out(3)" });
+            }
             ul.appendChild(li);
+            vistas[id] = tag;
         });
-        pintar.vistas = {};
-        lista.forEach(function (id) { pintar.vistas[id] = true; });
-        if (!lista.length) ul.innerHTML = "<li class='vacia'>Sin TVs en este lab con WS abierto.</li>";
+        pintar.vistas = vistas;
+        if (!lista.length) ul.innerHTML = "<li class='vacia'>No hay televisiones encendidas en este laboratorio. Verifica que estén encendidas y con la aplicación abierta.</li>";
         $("cuentaTvs").textContent = lista.length + (lista.length === 1 ? " conectada" : " conectadas");
         if (window.UI) UI.entrada(nuevas, { y: 0, scale: .94, paso: .05, duracion: .8 });
     }
@@ -152,9 +181,9 @@
             stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: false });
             $("previa").srcObject = stream;
             $("btnTransmitir").disabled = false;
-            $("info").textContent = "Pantalla capturada. Ahora Transmitir.";
+            $("info").textContent = "Tu pantalla ya se ve en la vista previa. Ahora pulsa «Transmitir a las TVs».";
             emision(sessionId ? "aire" : "capturada");
-        } catch (e) { $("info").textContent = "Captura cancelada."; }
+        } catch (e) { $("info").textContent = "No se compartió la pantalla. Pulsa «Compartir mi pantalla» para intentarlo de nuevo."; }
     };
 
     $("btnTransmitir").onclick = async function () {
@@ -219,6 +248,8 @@
         cerrarPc(deviceId);
         var pc = new RTCPeerConnection();
         pcs[deviceId] = pc;
+        // Solo presentación: repinta la lista cuando cambia el estado del enlace.
+        pc.addEventListener("connectionstatechange", function () { pintar(); });
         stream.getTracks().forEach(function (t) { pc.addTrack(t, stream); });
         pc.onicecandidate = function (ev) {
             if (ev.candidate && ws && ws.readyState === 1)
@@ -255,7 +286,7 @@
         sessionId = null;
         $("btnCortar").disabled = true;
         $("btnTransmitir").disabled = false;
-        $("info").textContent = "Transmisión cortada.";
+        $("info").textContent = "Transmisión terminada. Las televisiones dejaron de mostrar tu pantalla.";
         emision(stream ? "capturada" : "idle");
         pintar();
     };
@@ -267,11 +298,12 @@
         var mias = (d.sesiones || []).filter(function (s) {
             return (s.participantes || []).some(function (id) { return visibles().indexOf(id) >= 0; });
         });
-        if (!mias.length) { UI.toast("Este lab no tiene sesiones activas.", "aviso"); return; }
+        if (!mias.length) { UI.toast("Las pantallas de este laboratorio ya están libres.", "ok"); return; }
         if (!(await UI.confirmar({
-            titulo: "¿Detener " + mias.length + " sesión(es) de este lab?",
-            texto: "Las TVs de este laboratorio vuelven a quedar libres (incluye sesiones zombi).",
-            ok: "Liberar", peligro: true
+            titulo: "¿Liberar las pantallas de este laboratorio?",
+            texto: "Se detendrá " + (mias.length === 1 ? "la transmisión que las ocupa" : "las " + mias.length + " transmisiones que las ocupan") +
+                ". Úsalo si quedaron ocupadas por una clase anterior.",
+            ok: "Sí, liberar", peligro: true
         }))) return;
         for (var i = 0; i < mias.length; i++) {
             await fetch("api/sesiones/" + encodeURIComponent(mias[i].sessionId), {
@@ -279,15 +311,19 @@
             });
         }
         await actualizarEstados();
-        $("info").textContent = "Sesiones del lab liberadas.";
+        $("info").textContent = "Listo: las pantallas de este laboratorio quedaron libres.";
     };
 
     conectar(); pintar();
 
     // Entrada de la página (solo presentación)
+    pasos(document.body.dataset.emision || "idle");
+    pasos.listo = true;
     UI.titular($("titular"), .2);
     UI.entrada(".escenario, .lateral > .tarjeta", { delay: .35, y: 50, paso: .1 });
-    UI.entrada(".pasos > button", { delay: .8, y: 18, paso: .06 });
+    UI.entrada(".g-paso", { delay: .7, x: 30, y: 0, paso: .1 });
+    UI.entrada(".g-num", { delay: .85, y: 0, scale: 0, paso: .1, ease: "back.out(2.6)" });
     UI.magnetico($("btnTransmitir"), .22);
     UI.magnetico($("btnCapturar"), .22);
+    UI.ruido($("ruidoPrevia"), function () { return document.body.dataset.emision === "idle"; });
 })();
