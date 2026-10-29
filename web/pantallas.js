@@ -60,6 +60,14 @@
         document.getElementById("servidorTxt").textContent = texto;
     }
 
+    /** Qué escribir en la TV: en la nube la URL wss completa; en LAN, ip:puerto. */
+    function srvTexto() {
+        if (!servidor) return "";
+        return servidor.externa
+            ? (servidor.ws || servidor.url || servidor.ip || "")
+            : (servidor.ip || "") + ":" + (servidor.puerto || "");
+    }
+
     async function cargar() {
         var r;
         try {
@@ -85,15 +93,7 @@
             if (antes && antes !== t.estado) cambios.push({ t: t, antes: antes });
             estadosPrevios[t.deviceId] = t.estado;
         });
-    /** Qué escribir en la TV: en la nube la URL wss completa; en LAN, ip:puerto. */
-    function srvTexto() {
-        if (!servidor) return "";
-        return servidor.externa
-            ? (servidor.ws || servidor.url || servidor.ip || "")
-            : (servidor.ip || "") + ":" + (servidor.puerto || "");
-    }
-
-    marcarServidor(true, "Sistema conectado", "Servidor " + (srvTexto() || "—"));
+        marcarServidor(true, "Sistema conectado", "Servidor " + (srvTexto() || "—"));
         pintar();
         efectosCambios(cambios);
     }
