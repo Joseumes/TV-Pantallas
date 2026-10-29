@@ -33,7 +33,17 @@ class DeviceManager private constructor(context: Context) {
         get() = prefs.getBoolean("llenar", false)
         set(v) = prefs.edit().putBoolean("llenar", v).apply()
 
-    val wsUrl: String get() = "ws://$server:$port/ws/senalizacion"
+    /** URL del WebSocket de señalización. Si "servidor" es una URL completa
+     *  (wss://... o ws://...), se usa tal cual añadiendo la ruta si falta
+     *  (modo nube: el ficha del panel pega p. ej. wss://pantallas.onrender.com/ws/senalizacion).
+     *  Si no, se arma la clásica ws://$server:$port/ws/senalizacion (modo LAN). */
+    val wsUrl: String
+        get() {
+            val s = server.trim()
+            if (!s.contains("://")) return "ws://$s:$port/ws/senalizacion"
+            val base = s.removeSuffix("/")
+            return if (base.endsWith("/ws/senalizacion")) base else "$base/ws/senalizacion"
+        }
 
     companion object {
         @Volatile private var inst: DeviceManager? = null

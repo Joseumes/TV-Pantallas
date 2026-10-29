@@ -1,6 +1,7 @@
 package com.universidad.pantallas
 
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -35,6 +36,9 @@ class MainActivity : AppCompatActivity(), SignalingClient.Listener {
         super.onCreate(s)
         setContentView(R.layout.activity_main)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // Los botones físicos de volumen del control remoto ajustan el audio
+        // de la transmisión.
+        volumeControlStream = AudioManager.STREAM_MUSIC
 
         device = DeviceManager.get(this)
         estado = findViewById(R.id.txtEstado)

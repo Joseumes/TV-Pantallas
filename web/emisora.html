@@ -20,17 +20,6 @@
             </a>
             <div class="cabecera-der">
                 <span class="estado-ws" id="wsChip"><span class="punto"></span><span id="estadoWs">Conectando…</span></span>
-                <div class="llave">
-                    <button type="button" class="llave-boton" aria-expanded="false" aria-controls="panelLlave" title="Clave de acceso (soporte técnico)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2" /></svg>
-                        <span class="solo-lectores">Clave de acceso</span>
-                    </button>
-                    <div class="llave-panel" id="panelLlave">
-                        <label for="apiKey"><span class="etiqueta">Clave de acceso (API Key)</span></label>
-                        <p>Normalmente ya viene configurada. Se guarda sola al salir del campo.</p>
-                        <div class="fila"><input type="password" id="apiKey" autocomplete="off" spellcheck="false" /></div>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="cab-nav">
@@ -47,66 +36,38 @@
             <div class="seccion-cab" style="margin-bottom:30px">
                 <div>
                     <p class="etiqueta" style="margin:0 0 14px"><b>●</b> Transmitir desde esta computadora</p>
-                    <h1 class="titular" id="titular" style="font-size:clamp(2.2rem,5vw,4rem)">Comparte tu pantalla con el salón.</h1>
+                    <h1 class="titular" id="titular" style="font-size:clamp(2.2rem,5vw,4rem)">Elige el laboratorio y comparte.</h1>
                 </div>
-                <p>Sigue los pasos numerados. La vista previa te muestra exactamente lo que verán tus estudiantes en las televisiones.</p>
+                <p>Cada tarjeta es un laboratorio. Entra a la tarjeta y pulsa <strong>«Compartir pantalla»</strong>: tu pantalla aparece directo en las TVs de ese laboratorio, sin elegir nada más.</p>
             </div>
 
-            <div class="emi">
-                <div class="tarjeta escenario">
-                    <div class="monitor">
-                        <div class="monitor-cab">
-                            <span class="tally" id="tally"><i></i><span id="tallyTxt">Sin pantalla compartida</span></span>
-                            <span class="reloj" id="reloj" title="Tiempo transmitiendo">00:00:00</span>
-                        </div>
-                        <div class="pantalla-previa">
-                            <div class="sin-senal"><div class="barras"></div><canvas class="ruido" id="ruidoPrevia"></canvas>
-                                <div class="msg"><b>Aún no compartes tu pantalla</b><span>Paso 2 · pulsa «Compartir mi pantalla»</span></div>
-                            </div>
-                            <video id="previa" autoplay muted playsinline></video>
-                        </div>
+            <div class="tarjeta escenario">
+                <div class="monitor">
+                    <div class="monitor-cab">
+                        <span class="tally" id="tally"><i></i><span id="tallyTxt">Sin pantalla compartida</span></span>
+                        <span class="reloj" id="reloj" title="Tiempo transmitiendo">00:00:00</span>
                     </div>
-                    <p id="info" class="consola" aria-live="polite" data-vacio="Aquí verás mensajes sobre tu transmisión."></p>
+                    <div class="pantalla-previa">
+                        <div class="sin-senal"><div class="barras"></div><canvas class="ruido" id="ruidoPrevia"></canvas>
+                            <div class="msg"><b>Aún no compartes tu pantalla</b><span>Pulsa «Compartir pantalla» en el laboratorio donde estás</span></div>
+                        </div>
+                        <video id="previa" autoplay muted playsinline></video>
+                    </div>
                 </div>
+                <div class="escenario-pie">
+                    <label class="audio-opt"><input type="checkbox" id="chkAudio" checked /> Compartir también el audio (se escucha en las pantallas)</label>
+                    <p class="audio-hint">Para oír el video en las TVs: comparte una <strong>pestaña</strong> y marca <strong>«Compartir audio»</strong> en la ventana del navegador.</p>
+                    <p id="info" class="consola" aria-live="polite" data-vacio="Aquí verás mensajes sobre tu transmisión."></p>
+                    <button type="button" class="peligro" id="btnCortarTodo" disabled data-rodar>Terminar todas las transmisiones</button>
+                </div>
+            </div>
 
-                <aside class="lateral">
-                    <div class="tarjeta" style="padding:8px">
-                        <ol class="guia">
-                            <li class="g-paso" id="gPaso1">
-                                <span class="g-num">1</span>
-                                <div>
-                                    <h3>Elige el laboratorio</h3>
-                                    <p>Las televisiones de ese laboratorio recibirán tu pantalla.</p>
-                                    <div id="chips" class="tabs"></div>
-                                </div>
-                            </li>
-                            <li class="g-paso" id="gPaso2">
-                                <span class="g-num">2</span>
-                                <div>
-                                    <h3>Comparte tu pantalla</h3>
-                                    <p>El navegador te preguntará qué ventana o pantalla quieres mostrar.</p>
-                                    <button type="button" id="btnCapturar" data-rodar>Compartir mi pantalla</button>
-                                </div>
-                            </li>
-                            <li class="g-paso" id="gPaso3">
-                                <span class="g-num">3</span>
-                                <div>
-                                    <h3>Transmite a las TVs</h3>
-                                    <p>Tu pantalla aparecerá en las televisiones en unos segundos.</p>
-                                    <button type="button" id="btnTransmitir" disabled data-rodar>Transmitir a las TVs <span class="flecha">→</span></button>
-                                </div>
-                            </li>
-                        </ol>
-                        <div class="fin-tx">
-                            <button type="button" class="peligro" id="btnCortar" disabled data-rodar>Terminar transmisión</button>
-                            <button type="button" class="fantasma" id="btnLiberar" title="Si las TVs quedaron ocupadas por una transmisión anterior">¿Pantallas ocupadas? Liberar laboratorio</button>
-                        </div>
-                    </div>
-                    <div class="tarjeta">
-                        <h2>Pantallas del laboratorio <span class="etiqueta" id="cuentaTvs">conectadas</span></h2>
-                        <ul id="tvs"></ul>
-                    </div>
-                </aside>
+            <div class="seccion" style="margin-top:34px">
+                <div class="seccion-cab">
+                    <h2 class="capsula">Laboratorios</h2>
+                    <p>Cada tarjeta transmite solo a sus pantallas. Puedes transmitir a varios laboratorios a la vez.</p>
+                </div>
+                <div id="labCards" class="lab-grid"></div>
             </div>
         </section>
     </main>

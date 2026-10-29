@@ -14,10 +14,11 @@ import org.webrtc.RtpReceiver
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
 import org.webrtc.SurfaceViewRenderer
+import org.webrtc.audio.JavaAudioDeviceModule
 
 /**
  * Receptor WebRTC: una PeerConnection por sesión, render del Remote VideoTrack
- * en el SurfaceTextureRenderer a pantalla completa.
+ * en el SurfaceTextureRenderer a pantalla completa y audio en el altavoz de la TV.
  */
 class WebRtcReceiver(
     context: Context,
@@ -25,12 +26,15 @@ class WebRtcReceiver(
     private val view: SurfaceViewRenderer,
     private val onIce: (String) -> Unit
 ) {
+    private val ctx: Context = context.applicationContext
+    private val adm: JavaAudioDeviceModule = JavaAudioDeviceModule.builder(ctx)
+        .createAudioDeviceModule()
     private val factory: PeerConnectionFactory = PeerConnectionFactory.builder()
+        .setAudioDeviceModule(adm)
         .setVideoDecoderFactory(DefaultVideoDecoderFactory(egl.eglBaseContext))
         .createPeerConnectionFactory()
 
     private var pc: PeerConnection? = null
-    private val ctx: Context = context.applicationContext
 
     init {
         view.init(egl.eglBaseContext, null)
@@ -38,7 +42,8 @@ class WebRtcReceiver(
         // FILL llenaría todo pero recorta los bordes (pantalla 16:10 → TV 16:9).
         view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
         RegistroLocal.log(ctx, "rtc view init OK")
-        // Sin audio de momento: pantallas mudas (evita acoples en salones).
+        // Con audio: el altavoz de la TV reproduce la pista remota (viene de la
+        // emisora si compartió una pestaña marcando "Compartir audio").
     }
 
     fun start(sessionId: String, offerSdp: String, llenar: Boolean, answerCb: (String) -> Unit) {
@@ -57,10 +62,13 @@ class WebRtcReceiver(
             }
             override fun onAddStream(s: MediaStream) {
                 s.videoTracks.firstOrNull()?.addSink(view)
+                s.audioTracks.forEach { it.setEnabled(true) }
+                RegistroLocal.log(ctx, "STREAM videos=" + s.videoTracks.size + " audios=" + s.audioTracks.size)
             }
             override fun onAddTrack(r: RtpReceiver, s: Array<out MediaStream>) {
-                RegistroLocal.log(ctx, "TRACK recibido, videos=" + s.sumOf { it.videoTracks.size })
+                RegistroLocal.log(ctx, "TRACK recibido, videos=" + s.sumOf { it.videoTracks.size } + " audios=" + s.sumOf { it.audioTracks.size })
                 s.firstOrNull()?.videoTracks?.firstOrNull()?.addSink(view)
+                s.forEach { st -> st.audioTracks.forEach { it.setEnabled(true) } }
             }
             override fun onConnectionChange(s: PeerConnection.PeerConnectionState) {
                 RegistroLocal.log(ctx, "pc=" + s.name)
@@ -106,6 +114,7 @@ class WebRtcReceiver(
     fun release() {
         close()
         try { view.release() } catch (_: Exception) {}
+        try { adm.release() } catch (_: Exception) {}
     }
 
     private open class SimpleSdp(val done: () -> Unit = {}) : SdpObserver {

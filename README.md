@@ -90,3 +90,10 @@ El vídeo sigue yendo directo PC → TVs; el servidor solo coordina.
 - 4× 5 Mbps ≈ 20 Mbps de subida desde la laptop: usar Ethernet.
 - Sincronía entre TVs ~200–500 ms (presentaciones sí, videowall no).
 - Sin audio (pantallas mudas a propósito).
+
+## 7. En la nube (Render gratis)
+
+El mismo server puede correr en Render (plan Hobby $0) con la web servida por
+él mismo y el registro de TVs respaldado en Upstash: la APK acepta la ficha
+`wss://...onrender.com/ws/senalizacion` y se emite desde cualquier PC con
+HTTPS real. Guía completa: `docs/DESPLIEGUE-RENDER.md`.

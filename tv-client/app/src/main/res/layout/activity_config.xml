@@ -16,10 +16,10 @@
             android:text="CONFIGURACIÓN" android:textColor="#FFFFFF" android:textSize="22sp" />
 
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="12dp" android:text="Servidor (IP del PC)"
+            android:layout_marginTop="12dp" android:text="Servidor (IP del PC o URL wss://)"
             android:textColor="#BBBBBB" android:textSize="14sp" />
         <EditText android:id="@+id/eServer" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:hint="172.17.203.186"
+            android:layout_height="wrap_content" android:hint="172.17.203.186 ó wss://pantallas.onrender.com/ws/senalizacion"
             android:textColor="#FFFFFF" android:textColorHint="#888888"
             android:inputType="text" android:imeOptions="actionNext" />
 

@@ -1,6 +1,7 @@
 // Panel operador: home de laboratorios + vista por lab + sesiones.
 // Varios labs pueden transmitir a la vez (sesiones independientes por lab).
-// La API Key viene embebida del servidor (config-web.js); el campo manual la sobreescribe.
+// La API Key es cero-config: el servidor la entrega embebida (config-web.js) y
+// la web no pide nada al usuario: entrar y operar.
 (function () {
     "use strict";
     var CLAVE = "pantallas.apiKey";
@@ -18,16 +19,13 @@
     }
     function hdr() { return { "X-Api-Key": clave(), "Content-Type": "application/json" }; }
 
-    if (!localStorage.getItem(CLAVE) && window.PANTALLAS_API_KEY) {
+    // Clave cero-config: el servidor siempre entrega la vigente embebida en
+    // config-web.js; tanto la primera visita como las siguientes quedan
+    // sincronizadas (si la clave cambia en el servidor, el navegador se
+    // autocorrige al recargar). El campo manual es solo de soporte/OMITIR.
+    if (window.PANTALLAS_API_KEY) {
         localStorage.setItem(CLAVE, window.PANTALLAS_API_KEY);
     }
-    document.getElementById("apiKey").value = clave();
-    document.getElementById("btnGuardarClave").onclick = function () {
-        localStorage.setItem(CLAVE, document.getElementById("apiKey").value.trim());
-        document.querySelector(".llave").classList.remove("abierta");
-        UI.toast("API Key guardada en este navegador.", "ok");
-        cargar();
-    };
 
     document.getElementById("fechaHoy").textContent = new Date().toLocaleDateString("es", { weekday: "long", day: "numeric", month: "long" });
 
@@ -73,7 +71,7 @@
         if (!r.ok) {
             marcarServidor(false, "Error " + r.status);
             document.getElementById("labCards").innerHTML =
-                "<div class='vacio'>No se pudo leer la lista de pantallas (error " + r.status + "). Avisa a soporte técnico: puede que la clave de acceso (ícono de llave, arriba a la derecha) no sea correcta.</div>";
+                "<div class='vacio'>No se pudo leer la lista de pantallas (error " + r.status + "). Recarga esta página con F5: la web trae su clave sola. Si el problema continúa, avisa a soporte técnico (vale revisar la API_KEY definida en el servidor).</div>";
             return;
         }
         var d = await r.json();
@@ -87,7 +85,15 @@
             if (antes && antes !== t.estado) cambios.push({ t: t, antes: antes });
             estadosPrevios[t.deviceId] = t.estado;
         });
-        marcarServidor(true, "Sistema conectado", "Servidor " + (servidor.ip || "") + ":" + (servidor.puerto || ""));
+    /** Qué escribir en la TV: en la nube la URL wss completa; en LAN, ip:puerto. */
+    function srvTexto() {
+        if (!servidor) return "";
+        return servidor.externa
+            ? (servidor.ws || servidor.url || servidor.ip || "")
+            : (servidor.ip || "") + ":" + (servidor.puerto || "");
+    }
+
+    marcarServidor(true, "Sistema conectado", "Servidor " + (srvTexto() || "—"));
         pintar();
         efectosCambios(cambios);
     }
@@ -133,7 +139,7 @@
         UI.contar(document.getElementById("kSt"), c.st);
         UI.contar(document.getElementById("kOff"), c.off);
         onda.set(ultimasTvs);
-        document.getElementById("tkSrv").textContent = servidor.ip || "—";
+        document.getElementById("tkSrv").textContent = srvTexto() || "—";
         document.getElementById("tkPto").textContent = servidor.puerto || "—";
 
         var box = document.getElementById("labCards");
@@ -239,7 +245,7 @@
 
     function fichaTexto(t) {
         return "En la APK → Configurar (una sola vez):\n" +
-            "Servidor: " + (servidor.ip || "") + "\n" +
+            "Servidor: " + (srvTexto() || "") + "\n" +
             "Puerto: " + (servidor.puerto || "") + "\n" +
             "Código: " + t.deviceId + "\n" +
             "Token: " + (t.token || "");
@@ -325,7 +331,7 @@
             div.querySelector(".vista").textContent = UI.hace(t.ultimaConexion);
             div.querySelector(".vista").title = t.ultimaConexion || "nunca conectada";
             if (labActual === "todas") div.querySelector(".ip").textContent += " · " + grupoDe(t);
-            div.querySelector(".f-srv").textContent = servidor.ip || "";
+            div.querySelector(".f-srv").textContent = srvTexto() || "";
             div.querySelector(".f-pto").textContent = servidor.puerto || "";
             div.querySelector(".f-id").textContent = t.deviceId;
             var tok = div.querySelector(".f-tok");

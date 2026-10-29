@@ -54,6 +54,7 @@
                         <label><span class="etiqueta">Nombre</span><input id="nombre" value="Simulada 1" /></label>
                     </div>
                     <button type="button" id="btnConectar" data-rodar>Encender esta TV de prueba <span class="flecha">→</span></button>
+                    <button type="button" id="btnSonido" class="secundario" data-rodar>🔊 Sonido: activado</button>
                     <p id="info" class="consola" data-vacio="Apagada. Al encenderla aparecerá como «Lista» en el laboratorio lab1."></p>
                 </div>
             </div>
@@ -70,6 +71,7 @@
         (function () {
             "use strict";
             var ws = null, pc = null, sessionId = null, pingTimer = null;
+            var sonidoMuted = false;
             var $ = function (id) { return document.getElementById(id); };
 
             function tokenKey() { return "pantallas.token." + $("deviceId").value.trim(); }
@@ -112,7 +114,26 @@
                 cerrarPc();
                 sessionId = m.sessionId;
                 pc = new RTCPeerConnection();
-                pc.ontrack = function (ev) { $("video").srcObject = ev.streams[0]; $("estado").textContent = "◉ RECIBIENDO VÍDEO"; };
+                pc.ontrack = function (ev) {
+                    var v = $("video");
+                    v.srcObject = ev.streams[0];
+                    // Con audio: suena en la pantalla. Sin muted para oír.
+                    v.muted = sonidoMuted;
+                    v.volume = 1.0;
+                    var hayAudio = (ev.streams[0].getAudioTracks() || []).length > 0;
+                    var p = v.play();
+                    if (p && p.catch) p.catch(function () {
+                        // El navegador bloqueó el audio hasta un clic: el botón
+                        // de sonido lo desbloquea.
+                        $("estado").textContent = "◉ RECIBIENDO VÍDEO — pulsa «Sonido» para oír 🔊";
+                    });
+                    if (!hayAudio) {
+                        $("estado").textContent = "◉ RECIBIENDO VÍDEO (la emisión viene sin audio)";
+                        $("info").textContent = "Llega video sin audio: en la emisora activa «Compartir también el audio», comparte una pestaña y marca «Compartir audio».";
+                    } else {
+                        $("estado").textContent = "◉ RECIBIENDO VÍDEO + AUDIO 🔊";
+                    }
+                };
                 pc.onicecandidate = function (ev) {
                     if (ev.candidate) ws.send(JSON.stringify({ type: "ice", sessionId: sessionId, candidate: JSON.stringify(ev.candidate) }));
                 };
@@ -126,6 +147,14 @@
                 if (pc) { try { pc.close(); } catch (e) {} pc = null; }
                 $("video").srcObject = null;
             }
+
+            $("btnSonido").onclick = function () {
+                sonidoMuted = !sonidoMuted;
+                var v = $("video");
+                v.muted = sonidoMuted;
+                if (!sonidoMuted) { v.volume = 1.0; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+                $("btnSonido").textContent = sonidoMuted ? "🔇 Sonido: silenciado" : "🔊 Sonido: activado";
+            };
         })();
     </script>
     <script>

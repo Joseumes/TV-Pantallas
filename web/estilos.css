@@ -536,17 +536,34 @@ body[data-emision="aire"] .reloj { color: #fff; }
 .tab:hover:not(:disabled) { --b: #fff; --t: var(--verde); box-shadow: inset 0 0 0 1.5px var(--verde); }
 .tab.activa { --b: var(--verde); --t: #fff; box-shadow: none; }
 .tab.activa:hover:not(:disabled) { --b: var(--verde-2); --t: #fff; }
-#tvs { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-#tvs li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: var(--crema-3); border: 1.5px solid var(--linea-2); transition: border-color .3s, background-color .3s; }
-#tvs li .n { display: block; font: 600 16px var(--f); color: var(--texto); }
-#tvs li .c { font-size: 13px; color: var(--apagado); }
-#tvs li .tag { font: 700 12px var(--f); letter-spacing: .04em; padding: 5px 10px; border-radius: 999px; color: #fff; background: var(--vivo); }
-#tvs li.tx { border-color: rgba(212,53,44,.45); background: #fff; }
-#tvs li.tx .tag { background: var(--rojo); }
-#tvs li.tx.enlazando .tag { background: #fdecea; color: var(--rojo); animation: parpadeo 1s steps(2) infinite; }
-#tvs li.ocupada { border-color: rgba(184,115,10,.4); }
-#tvs li.ocupada .tag { background: #fbf0dc; color: var(--ambar); }
-#tvs li.vacia { display: block; text-align: center; color: var(--texto-2); font-size: 15px; border-style: dashed; padding: 22px; background: transparent; }
+.escenario-pie { display: grid; gap: 10px; margin-top: 4px; }
+.escenario-pie #btnCortarTodo { justify-self: end; }
+.audio-opt { display: flex; align-items: center; gap: 10px; font: 600 15px/1.4 var(--f); color: var(--verde); background: var(--verde-claro); border-radius: 14px; padding: 12px 14px; cursor: pointer; }
+.audio-opt input { width: 20px; height: 20px; min-height: 0; padding: 0; accent-color: var(--verde); flex: none; }
+.audio-hint { margin: 0 2px; font-size: 14px; color: var(--texto-2); }
+.audio-hint strong { color: var(--verde); }
+.emi-card.en-vivo { border-color: rgba(212,53,44,.5); box-shadow: 0 0 0 3px rgba(212,53,44,.15), var(--sombra-alta); }
+/* Card bloqueada mientras transmite: no se puede usar hasta apagar. */
+.emi-card.bloqueada { pointer-events: none; }
+.emi-card.bloqueada .emi-acciones { pointer-events: auto; }
+.emi-card.bloqueada .puntos, .emi-card.bloqueada .emi-tvs, .emi-card.bloqueada .lab-pie { opacity: .55; filter: saturate(.7); }
+.emi-card.bloqueada-ajena { opacity: .75; }
+.emi-card.bloqueada-ajena .puntos, .emi-card.bloqueada-ajena .emi-tvs { opacity: .55; }
+.emi-card.bloqueada-ajena button:not(.fantasma) { opacity: .45; }
+.bloqueo-msg { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ambar); background: #fbf0dc; border: 1px solid rgba(184,115,10,.35); border-radius: 12px; padding: 10px 12px; }
+.emi-card.en-vivo .bloqueo-msg { color: var(--rojo); background: #fdecea; border-color: rgba(212,53,44,.35); }
+.emi-card .emi-tvs { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.emi-card .emi-tvs li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--crema-3); border: 1.5px solid var(--linea-2); }
+.emi-card .emi-tvs li .n { display: block; font: 600 15px var(--f); color: var(--texto); }
+.emi-card .emi-tvs li .c { font-size: 12.5px; color: var(--apagado); font-family: var(--f-mono); }
+.emi-card .emi-tvs li .tag { font: 700 11.5px var(--f); letter-spacing: .04em; padding: 5px 10px; border-radius: 999px; color: #fff; background: var(--vivo); white-space: nowrap; }
+.emi-card .emi-tvs li.tx { border-color: rgba(212,53,44,.45); background: #fff; }
+.emi-card .emi-tvs li.tx .tag { background: var(--rojo); }
+.emi-card .emi-tvs li.tx.enlazando .tag { background: #fdecea; color: var(--rojo); animation: parpadeo 1s steps(2) infinite; }
+.emi-card .emi-tvs li.ocupada .tag { background: #fbf0dc; color: var(--ambar); }
+.emi-card .emi-tvs li.vacia { display: block; text-align: center; border-style: dashed; background: transparent; }
+.emi-card .emi-acciones { display: grid; gap: 6px; margin-top: 16px; }
+.emi-card .emi-acciones button { width: 100%; }
 @keyframes parpadeo { 50% { opacity: .35; } }
 
 /* ---------- TV simulada ---------- */

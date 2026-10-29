@@ -28,8 +28,9 @@ const { WebSocketServer } = require('ws');
 
 const DIR = __dirname;
 const CONFIG = leerJson(path.join(DIR, 'config.json'), {});
-const PUERTO = process.env.PUERTO || CONFIG.puerto || 8080;
+const PUERTO = process.env.PORT || process.env.PUERTO || CONFIG.puerto || 8080; // PORT: Render lo inyecta
 const API_KEY = process.env.API_KEY || CONFIG.apiKey || '';
+const URL_EXTERNA = (process.env.RENDER_EXTERNAL_URL || '').trim(); // ej. https://pantallas-umes.onrender.com
 const TIMEOUT_MS = (CONFIG.pingTimeoutSeg || 20) * 1000;
 const RUTA_DATOS = path.join(DIR, 'pantallas.json');
 const RUTA_WEB = path.join(DIR, '..', 'web');
@@ -56,6 +57,7 @@ function guardar() {
   } catch (e) {
     console.error('No se pudo guardar pantallas.json:', e.message);
   }
+  respaldarRemoto();
 }
 
 function cargar() {
@@ -64,6 +66,61 @@ function cargar() {
     p.enTransmision = false; // al arrancar nadie transmite
     pantallas.set(p.deviceId, p);
   }
+}
+
+//--- Respaldo remoto (Upstash Redis REST, tier gratis) -----------------------
+// En Render free no hay disco persistente: pantallas.json se borra en cada
+// reinicio/redeploy/despertado. Con UPSTASH_REDIS_REST_URL y
+// UPSTASH_REDIS_REST_TOKEN en variables de entorno, el registro de TVs
+// (unas pocas filas: 4 TVs son KB) se restaura al arrancar y se respalda
+// con debounce cuando cambia (lleva muy pocos comandos al día).
+
+const REMOTO_URL = (process.env.UPSTASH_REDIS_REST_URL || '').replace(/\/+$/, '');
+const REMOTO_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || '';
+
+async function restaurarDeRemoto() {
+  if (!REMOTO_URL || !REMOTO_TOKEN) return false;
+  try {
+    const r = await fetch(`${REMOTO_URL}/get/pantallas`, {
+      headers: { Authorization: `Bearer ${REMOTO_TOKEN}` },
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    if (!d.result) return false;
+    const lista = JSON.parse(d.result);
+    if (!Array.isArray(lista)) return false;
+    let n = 0;
+    for (const p of lista) {
+      if (!p || !p.deviceId) continue;
+      p.enTransmision = false;
+      pantallas.set(p.deviceId, p);
+      n++;
+    }
+    guardar();
+    console.log(`Registro restaurado del respaldo remoto: ${n} pantallas.`);
+    return n > 0;
+  } catch (e) {
+    console.error('No se pudo restaurar del respaldo remoto:', e.message);
+    return false;
+  }
+}
+
+let respaldoTemporizador = null;
+function respaldarRemoto() {
+  if (!REMOTO_URL || !REMOTO_TOKEN) return;
+  if (respaldoTemporizador) return; // ya hay respaldo programado (debounce 3 s)
+  respaldoTemporizador = setTimeout(async () => {
+    respaldoTemporizador = null;
+    try {
+      const valor = encodeURIComponent(JSON.stringify([...pantallas.values()]));
+      const r = await fetch(`${REMOTO_URL}/set/pantallas/${valor}`, {
+        headers: { Authorization: `Bearer ${REMOTO_TOKEN}` },
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    } catch (e) {
+      console.error('No se pudo respaldar a remoto:', e.message);
+    }
+  }, 3000);
 }
 
 function estadoDe(p) {
@@ -81,17 +138,37 @@ function ipLocal() {
   return '127.0.0.1';
 }
 
+/** Conexión que hay que escribir/probar. En Render es la URL externa (wss),
+ *  en LAN es la IP del servidor (ws). */
 function datosConexion() {
+  if (URL_EXTERNA) {
+    const u = new URL(URL_EXTERNA);
+    return {
+      ip: u.hostname,
+      puerto: u.port ? Number(u.port) : 443,
+      url: URL_EXTERNA,
+      ws: `wss://${u.host}/ws/senalizacion`,
+      externa: true,
+    };
+  }
   const ip = ipLocal();
-  return { ip, puerto: PUERTO, ws: `ws://${ip}:${PUERTO}/ws/senalizacion` };
+  return {
+    ip, puerto: PUERTO,
+    url: `http://${ip}:${PUERTO}`,
+    ws: `ws://${ip}:${PUERTO}/ws/senalizacion`,
+    externa: false,
+  };
 }
 
-/** Ficha de aprovisionamiento: lo que hay que escribir en la pantalla Config de la APK. */
+/** Ficha de aprovisionamiento: lo que hay que escribir en la pantalla Config de la APK.
+ *  En la nube, "servidor" es la URL completa wss://... (la APK la usa tal cual,
+ *  el puerto queda sin efecto). En LAN sigue siendo la IP + puerto. */
 function fichaTv(p) {
   const c = datosConexion();
   return {
     deviceId: p.deviceId, nombre: p.nombre, grupo: p.grupo || 'lab1', token: p.token,
-    servidor: c.ip, puerto: c.puerto, ws: c.ws,
+    servidor: c.externa ? c.ws : c.ip,
+    puerto: c.puerto, ws: c.ws,
   };
 }
 
@@ -107,9 +184,6 @@ const TIPOS = {
   '.js': 'application/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.woff2': 'font/woff2',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
 };
 
 function responder(res, codigo, objeto) {
@@ -467,10 +541,17 @@ if (!API_KEY || API_KEY === 'CAMBIA-ESTA-CLAVE-POR-UNA-LARGA-Y-ALEATORIA') {
   process.exit(78);
 }
 
-cargar();
-const server = http.createServer(atenderHttp);
-const wss = new WebSocketServer({ server, path: '/ws/senalizacion' });
-wss.on('connection', atenderWs);
+(async () => {
+  // Con respaldo en Upstash el registro de TVs sobrevive a los reinicios
+  // del servicio (en Render free el disco se borra en cada arranque).
+  // Se restaura ANTES de abrir el puerto, para que las TVs que reconectan
+  // encuentren sus tokens.
+  const restaurado = await restaurarDeRemoto();
+  if (!restaurado) cargar();
+
+  const server = http.createServer(atenderHttp);
+  const wss = new WebSocketServer({ server, path: '/ws/senalizacion' });
+  wss.on('connection', atenderWs);
 
 // HTTPS opcional (para emitir desde cualquier PC: getDisplayMedia exige
 // contexto seguro). Si config.json trae https.keyFile/certFile y existen,
@@ -511,5 +592,6 @@ setInterval(() => {
 }, 15000);
 
 server.listen(PUERTO, '0.0.0.0', () => {
-  console.log(`Pantallas: http://0.0.0.0:${PUERTO}  (panel /, emisora /emisora.html, WS /ws/senalizacion)`);
-});
+    console.log(`Pantallas: http://0.0.0.0:${PUERTO}  (panel /, emisora /emisora.html, WS /ws/senalizacion)`);
+  });
+})();
